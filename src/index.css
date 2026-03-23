@@ -2325,6 +2325,137 @@ body {
   font-size: 14px;
 }
 
+/* Per-question timer ring */
+.question-timer-ring-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Question progress bar */
+.interview-progress-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0 4px;
+  flex-shrink: 0;
+}
+
+.progress-pip {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  transition: background 0.3s;
+}
+
+.progress-pip.answered { background: #10b981; }
+.progress-pip.skipped  { background: var(--border); }
+.progress-pip.current  { background: #6366f1; animation: pipPulse 1.2s ease-in-out infinite; }
+.progress-pip.remaining { background: var(--border-light); }
+
+@keyframes pipPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Word count badge */
+.word-count-badge {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+  transition: color 0.3s;
+}
+
+/* Typing mode field + word count wrapper */
+.chat-input-field-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Skip button */
+.btn-skip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  background: var(--border-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-skip:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.btn-skip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Re-record button */
+.btn-rerecord {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid #ef4444;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-rerecord:hover {
+  background: #fef2f2;
+}
+
+/* Transcript preview header */
+.transcript-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+/* Chat input actions row (typing mode) */
+.chat-input-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Skipped answer bubble */
+.skipped-bubble p {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Report card: skipped question */
+.question-skipped {
+  opacity: 0.7;
+  border-left: 3px solid var(--border);
+}
+
+.skipped-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  font-style: italic;
+}
+
 .transcript-preview {
   width: 100%;
   max-height: 120px;
@@ -2340,7 +2471,7 @@ body {
   color: var(--text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .transcript-text {

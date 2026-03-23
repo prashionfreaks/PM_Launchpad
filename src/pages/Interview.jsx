@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { pmRoles } from '../data/quizQuestions';
-import { Mic, MicOff, Send, Clock, Award, RefreshCw, MessageSquare, Volume2, VolumeX, Keyboard, Video, VideoOff } from 'lucide-react';
+import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, VideoOff, SkipForward, RotateCcw } from 'lucide-react';
 
 const interviewQuestions = {
   product_manager: [
@@ -61,7 +61,6 @@ const speak = (text, onEnd) => {
   utterance.rate = 0.95;
   utterance.pitch = 1;
   utterance.volume = 1;
-  // Try to use a natural-sounding voice
   const voices = window.speechSynthesis.getVoices();
   const preferred = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) ||
     voices.find(v => v.lang.startsWith('en') && v.name.includes('Natural')) ||
@@ -73,6 +72,10 @@ const speak = (text, onEnd) => {
   window.speechSynthesis.speak(utterance);
 };
 
+const QUESTION_TIME = 3 * 60; // 3 minutes per question
+const RING_R = 18;
+const RING_C = 2 * Math.PI * RING_R;
+
 export default function Interview() {
   const { state, dispatch } = useApp();
   const [started, setStarted] = useState(false);
@@ -82,6 +85,9 @@ export default function Interview() {
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [finished, setFinished] = useState(false);
   const [scores, setScores] = useState(null);
+  const [skipped, setSkipped] = useState(new Set());
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(QUESTION_TIME);
+  const [questionTimeExpired, setQuestionTimeExpired] = useState(false);
 
   // Voice state
   const [isListening, setIsListening] = useState(false);
@@ -103,10 +109,17 @@ export default function Interview() {
   const isListeningRef = useRef(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const questionTimerRef = useRef(null);
+  const currentAnswerRef = useRef('');
 
   const roleId = state.selectedPath || state.user?.targetRole || 'product_manager';
   const role = pmRoles.find(r => r.id === roleId);
   const questions = getQuestionsForRole(roleId);
+
+  // Keep currentAnswer accessible in timer callbacks
+  useEffect(() => {
+    currentAnswerRef.current = currentAnswer;
+  }, [currentAnswer]);
 
   // Check browser support
   useEffect(() => {
@@ -115,7 +128,6 @@ export default function Interview() {
     setMicSupported(!!SpeechRecognition);
     setCameraSupported(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
 
-    // Load voices
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
@@ -124,7 +136,6 @@ export default function Interview() {
     return () => {
       window.speechSynthesis?.cancel();
       recognitionRef.current?.abort();
-      // Stop camera stream on unmount
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
@@ -169,7 +180,7 @@ export default function Interview() {
     }
   }, [cameraOn, startCamera, stopCamera]);
 
-  // Timer
+  // Total interview timer
   useEffect(() => {
     if (started && !finished) {
       timerRef.current = setInterval(() => {
@@ -185,6 +196,37 @@ export default function Interview() {
       return () => clearInterval(timerRef.current);
     }
   }, [started, finished]);
+
+  // Per-question timer — resets every time currentQ changes
+  useEffect(() => {
+    if (!started || finished) return;
+    setQuestionTimeLeft(QUESTION_TIME);
+    clearInterval(questionTimerRef.current);
+
+    questionTimerRef.current = setInterval(() => {
+      setQuestionTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(questionTimerRef.current);
+          setQuestionTimeExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(questionTimerRef.current);
+  }, [currentQ, started, finished]);
+
+  // Auto-submit or auto-skip when question timer expires
+  useEffect(() => {
+    if (!questionTimeExpired) return;
+    setQuestionTimeExpired(false);
+    if (currentAnswerRef.current.trim()) {
+      handleSubmitAnswer();
+    } else {
+      handleSkip();
+    }
+  }, [questionTimeExpired]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -235,13 +277,11 @@ export default function Interview() {
         console.warn('Speech recognition error:', event.error);
       }
       if (event.error === 'no-speech' && isListeningRef.current) {
-        // Restart on no-speech
         try { recognition.start(); } catch (e) { /* ignore */ }
       }
     };
 
     recognition.onend = () => {
-      // Auto-restart if still supposed to be listening
       if (isListeningRef.current) {
         try { recognition.start(); } catch (e) { /* ignore */ }
       }
@@ -281,10 +321,25 @@ export default function Interview() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const getQuestionTimerColor = () => {
+    if (questionTimeLeft > 60) return '#10b981';
+    if (questionTimeLeft > 30) return '#f59e0b';
+    return '#ef4444';
+  };
+
+  // Clear the current recording so user can start fresh
+  const handleReRecord = () => {
+    stopListening();
+    setCurrentAnswer('');
+    setTranscript('');
+    setInterimTranscript('');
+  };
+
   const handleSubmitAnswer = () => {
     const answer = currentAnswer.trim();
     if (!answer) return;
 
+    clearInterval(questionTimerRef.current);
     stopListening();
     window.speechSynthesis?.cancel();
 
@@ -297,12 +352,22 @@ export default function Interview() {
     if (currentQ < questions.length - 1) {
       setCurrentQ(prev => prev + 1);
     } else {
-      generateScores(newAnswers);
+      generateScores(newAnswers, skipped);
     }
   };
 
-  const generateScores = (allAnswers) => {
+  const generateFeedback = (answer, hasFramework, hasStructure, hasDepth) => {
+    const tips = [];
+    if (!hasFramework) tips.push('Try incorporating PM frameworks (RICE, Jobs-to-be-Done, etc.)');
+    if (!hasStructure) tips.push('Structure your answer with clear steps or bullet points');
+    if (!hasDepth) tips.push('Add more depth with specific examples or data points');
+    if (tips.length === 0) tips.push('Great answer! Consider adding metrics for even more impact.');
+    return tips;
+  };
+
+  const generateScores = (allAnswers, skippedSet = new Set()) => {
     clearInterval(timerRef.current);
+    clearInterval(questionTimerRef.current);
     stopListening();
     window.speechSynthesis?.cancel();
 
@@ -325,15 +390,28 @@ export default function Interview() {
     });
 
     const overallScores = {};
+    const answeredScores = Object.values(questionScores).map(q => q.score);
     criteria.forEach(c => {
-      const s = Object.values(questionScores).map(q => q.score);
-      overallScores[c] = Math.round(s.reduce((a, b) => a + b, 0) / s.length) + Math.floor(Math.random() * 10) - 5;
+      if (answeredScores.length === 0) {
+        overallScores[c] = 0;
+        return;
+      }
+      overallScores[c] = Math.round(answeredScores.reduce((a, b) => a + b, 0) / answeredScores.length) + Math.floor(Math.random() * 10) - 5;
       overallScores[c] = Math.max(30, Math.min(100, overallScores[c]));
     });
 
-    const overall = Math.round(Object.values(overallScores).reduce((a, b) => a + b, 0) / criteria.length);
+    const overall = answeredScores.length > 0
+      ? Math.round(Object.values(overallScores).reduce((a, b) => a + b, 0) / criteria.length)
+      : 0;
 
-    const result = { questionScores, overallScores, overall, answeredCount: Object.keys(allAnswers).length, totalQuestions: questions.length };
+    const result = {
+      questionScores,
+      overallScores,
+      overall,
+      answeredCount: Object.keys(allAnswers).length,
+      totalQuestions: questions.length,
+      skippedIndices: [...skippedSet],
+    };
     setScores(result);
     setFinished(true);
 
@@ -347,17 +425,27 @@ export default function Interview() {
     }
   };
 
-  const generateFeedback = (answer, hasFramework, hasStructure, hasDepth) => {
-    const tips = [];
-    if (!hasFramework) tips.push('Try incorporating PM frameworks (RICE, Jobs-to-be-Done, etc.)');
-    if (!hasStructure) tips.push('Structure your answer with clear steps or bullet points');
-    if (!hasDepth) tips.push('Add more depth with specific examples or data points');
-    if (tips.length === 0) tips.push('Great answer! Consider adding metrics for even more impact.');
-    return tips;
+  // Move to next question without answering
+  const handleSkip = () => {
+    clearInterval(questionTimerRef.current);
+    stopListening();
+    window.speechSynthesis?.cancel();
+
+    const newSkipped = new Set([...skipped, currentQ]);
+    setSkipped(newSkipped);
+    setCurrentAnswer('');
+    setTranscript('');
+    setInterimTranscript('');
+
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(prev => prev + 1);
+    } else {
+      generateScores(answers, newSkipped);
+    }
   };
 
   const handleFinish = () => {
-    generateScores(answers);
+    generateScores(answers, skipped);
   };
 
   // ----- REPORT CARD VIEW -----
@@ -376,7 +464,9 @@ export default function Interview() {
               <span className="big-score">{scores.overall}%</span>
               <span>{scores.overall >= 70 ? 'Passed' : 'Needs Improvement'}</span>
             </div>
-            <p>{scores.answeredCount} of {scores.totalQuestions} questions answered</p>
+            <p>
+              {scores.answeredCount} answered · {scores.skippedIndices.length} skipped · {scores.totalQuestions} total
+            </p>
             {scores.overall >= 70 && <div className="xp-earned">+1000 XP</div>}
           </div>
 
@@ -401,20 +491,35 @@ export default function Interview() {
 
           <div className="report-questions">
             <h3>Question-by-Question Feedback</h3>
-            {Object.entries(scores.questionScores).map(([qIdx, data]) => (
-              <div key={qIdx} className="question-feedback">
-                <h4>Q{parseInt(qIdx) + 1}: {questions[qIdx]}</h4>
-                <p className="your-answer">{answers[qIdx]}</p>
-                <div className="feedback-tips">
-                  {data.feedback.map((tip, i) => (
-                    <span key={i} className="tip">💡 {tip}</span>
-                  ))}
+            {questions.map((q, qIdx) => {
+              const wasSkipped = scores.skippedIndices.includes(qIdx);
+              const data = scores.questionScores[qIdx];
+              return (
+                <div key={qIdx} className={`question-feedback ${wasSkipped ? 'question-skipped' : ''}`}>
+                  <h4>Q{qIdx + 1}: {q}</h4>
+                  {wasSkipped ? (
+                    <p className="skipped-label">Skipped</p>
+                  ) : data ? (
+                    <>
+                      <p className="your-answer">{answers[qIdx]}</p>
+                      <div className="feedback-tips">
+                        {data.feedback.map((tip, i) => (
+                          <span key={i} className="tip">💡 {tip}</span>
+                        ))}
+                      </div>
+                    </>
+                  ) : null}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          <button className="btn-primary" onClick={() => { setStarted(false); setFinished(false); setCurrentQ(0); setAnswers({}); setScores(null); setTimeLeft(30 * 60); setCurrentAnswer(''); setTranscript(''); }}>
+          <button className="btn-primary" onClick={() => {
+            setStarted(false); setFinished(false); setCurrentQ(0);
+            setAnswers({}); setScores(null); setTimeLeft(30 * 60);
+            setCurrentAnswer(''); setTranscript('');
+            setSkipped(new Set()); setQuestionTimeLeft(QUESTION_TIME);
+          }}>
             <RefreshCw size={18} /> Retake Interview
           </button>
         </div>
@@ -439,10 +544,10 @@ export default function Interview() {
             <ul>
               <li>Enable your camera for a realistic interview simulation</li>
               <li>The interviewer will ask you {questions.length} questions via voice</li>
-              <li>Respond by speaking into your microphone</li>
-              <li>You have 30 minutes total</li>
+              <li>You have <strong>3 minutes per question</strong> and 30 minutes total</li>
+              <li>Respond by speaking into your microphone, or switch to typing mode</li>
               <li>Use PM frameworks and real examples in your answers</li>
-              <li>You can switch to typing mode anytime</li>
+              <li>Skip questions you want to come back to — or re-record if you stumble</li>
               <li>You'll receive a detailed report card at the end</li>
             </ul>
             {!micSupported && (
@@ -467,6 +572,13 @@ export default function Interview() {
 
   // ----- ACTIVE INTERVIEW VIEW -----
   const displayAnswer = currentAnswer + (interimTranscript ? (currentAnswer ? ' ' : '') + interimTranscript : '');
+  const wc = (() => {
+    const count = displayAnswer.trim() ? displayAnswer.trim().split(/\s+/).length : 0;
+    if (count === 0) return { label: '', color: 'var(--text-light)' };
+    if (count < 40) return { label: `${count} words · too short`, color: '#ef4444' };
+    if (count < 80) return { label: `${count} words · getting there`, color: '#f59e0b' };
+    return { label: `${count} words · strong`, color: '#10b981' };
+  })();
 
   return (
     <div className="page-container interview-page">
@@ -491,15 +603,37 @@ export default function Interview() {
         {cameraError && <div className="webcam-error">{cameraError}</div>}
       </div>
 
+      {/* Timer bar */}
       <div className="interview-timer">
         <Clock size={18} />
-        <span className={timeLeft < 300 ? 'timer-warning' : ''}>
+        <span className={timeLeft < 300 ? 'timer-warning' : ''} title="Total time remaining">
           {formatTime(timeLeft)}
         </span>
+
+        <div className="question-timer-ring-wrap" title="Time for this question">
+          <svg width="44" height="44">
+            <circle cx="22" cy="22" r={RING_R} fill="none" stroke="var(--border)" strokeWidth="3" />
+            <circle
+              cx="22" cy="22" r={RING_R}
+              fill="none"
+              stroke={getQuestionTimerColor()}
+              strokeWidth="3"
+              strokeDasharray={RING_C}
+              strokeDashoffset={RING_C * (1 - questionTimeLeft / QUESTION_TIME)}
+              strokeLinecap="round"
+              transform="rotate(-90 22 22)"
+              style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
+            />
+            <text x="22" y="26" textAnchor="middle" fontSize="9" fontWeight="700" fill={getQuestionTimerColor()}>
+              {formatTime(questionTimeLeft)}
+            </text>
+          </svg>
+        </div>
+
         <div className="interview-mode-toggle">
           <button
             className={`mode-btn ${!useTyping ? 'active' : ''}`}
-            onClick={() => { setUseTyping(false); }}
+            onClick={() => setUseTyping(false)}
             title="Voice mode"
           >
             <Mic size={14} /> Voice
@@ -512,7 +646,19 @@ export default function Interview() {
             <Keyboard size={14} /> Type
           </button>
         </div>
+
         <span className="q-counter">Question {currentQ + 1}/{questions.length}</span>
+      </div>
+
+      {/* Question progress bar */}
+      <div className="interview-progress-bar">
+        {questions.map((_, i) => {
+          let status = 'remaining';
+          if (answers[i]) status = 'answered';
+          else if (skipped.has(i)) status = 'skipped';
+          else if (i === currentQ) status = 'current';
+          return <div key={i} className={`progress-pip ${status}`} title={`Q${i + 1}`} />;
+        })}
       </div>
 
       <div className="chat-container">
@@ -535,6 +681,13 @@ export default function Interview() {
               <div className="chat-message candidate">
                 <div className="message-bubble">
                   <p>{answers[i]}</p>
+                </div>
+              </div>
+            )}
+            {skipped.has(i) && i !== currentQ && (
+              <div className="chat-message candidate">
+                <div className="message-bubble skipped-bubble">
+                  <p>— Skipped —</p>
                 </div>
               </div>
             )}
@@ -565,25 +718,37 @@ export default function Interview() {
       <div className="voice-input-area">
         {useTyping ? (
           <div className="chat-input">
-            <textarea
-              value={currentAnswer}
-              onChange={e => setCurrentAnswer(e.target.value)}
-              placeholder="Type your answer..."
-              rows={3}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitAnswer();
-                }
-              }}
-            />
-            <button
-              className="btn-primary send-btn"
-              disabled={!currentAnswer.trim()}
-              onClick={handleSubmitAnswer}
-            >
-              <Send size={18} />
-            </button>
+            <div className="chat-input-field-wrap">
+              <textarea
+                value={currentAnswer}
+                onChange={e => setCurrentAnswer(e.target.value)}
+                placeholder="Type your answer..."
+                rows={3}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitAnswer();
+                  }
+                }}
+              />
+              {wc.label && <span className="word-count-badge" style={{ color: wc.color }}>{wc.label}</span>}
+            </div>
+            <div className="chat-input-actions">
+              <button
+                className="btn-skip"
+                onClick={handleSkip}
+                title="Skip this question"
+              >
+                <SkipForward size={16} /> Skip
+              </button>
+              <button
+                className="btn-primary send-btn"
+                disabled={!currentAnswer.trim()}
+                onClick={handleSubmitAnswer}
+              >
+                <Send size={18} />
+              </button>
+            </div>
           </div>
         ) : (
           <div className="voice-controls">
@@ -598,6 +763,15 @@ export default function Interview() {
             </div>
 
             <div className="voice-buttons">
+              <button
+                className="btn-skip"
+                onClick={handleSkip}
+                title="Skip this question"
+                disabled={isSpeaking}
+              >
+                <SkipForward size={16} /> Skip
+              </button>
+
               <button
                 className={`mic-button ${isListening ? 'recording' : ''}`}
                 onClick={toggleListening}
@@ -615,14 +789,24 @@ export default function Interview() {
                 disabled={!currentAnswer.trim()}
                 onClick={handleSubmitAnswer}
               >
-                Submit Answer <Send size={16} />
+                Submit <Send size={16} />
               </button>
             </div>
 
             {displayAnswer && (
               <div className="transcript-preview">
-                <p className="transcript-label">Your answer:</p>
+                <div className="transcript-preview-header">
+                  <p className="transcript-label">Your answer:</p>
+                  <button
+                    className="btn-rerecord"
+                    onClick={handleReRecord}
+                    title="Clear and re-record"
+                  >
+                    <RotateCcw size={14} /> Re-record
+                  </button>
+                </div>
                 <p className="transcript-text">{displayAnswer}</p>
+                {wc.label && <span className="word-count-badge" style={{ color: wc.color }}>{wc.label}</span>}
               </div>
             )}
           </div>
