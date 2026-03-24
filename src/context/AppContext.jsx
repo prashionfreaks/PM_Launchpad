@@ -1,4 +1,11 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import {
+  upsertUser,
+  updateQuizResults,
+  updateSelectedPath,
+  updateRoadmapProgress,
+  updateInterviewResult,
+} from '../lib/userService';
 
 const AppContext = createContext();
 
@@ -72,9 +79,41 @@ function reducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, null, loadState);
+  const prevState = useRef(state);
+
 
   useEffect(() => {
     localStorage.setItem('pm-platform-state', JSON.stringify(state));
+
+    const prev = prevState.current;
+    const email = state.user?.email;
+
+    // New user registered
+    if (state.user && state.user !== prev.user) {
+      upsertUser(state.user);
+    }
+
+    // Quiz results saved
+    if (email && state.quizResults && state.quizResults !== prev.quizResults) {
+      updateQuizResults(email, state.quizResults);
+    }
+
+    // Learning path selected
+    if (email && state.selectedPath && state.selectedPath !== prev.selectedPath) {
+      updateSelectedPath(email, state.selectedPath);
+    }
+
+    // Roadmap milestone completed
+    if (email && state.roadmapProgress !== prev.roadmapProgress) {
+      updateRoadmapProgress(email, state.roadmapProgress);
+    }
+
+    // Interview result saved
+    if (email && state.interviewResult && state.interviewResult !== prev.interviewResult) {
+      updateInterviewResult(email, state.interviewResult);
+    }
+
+    prevState.current = state;
   }, [state]);
 
   return (

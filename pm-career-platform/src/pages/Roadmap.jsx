@@ -119,7 +119,7 @@ export default function Roadmap() {
       textContent += `     ${c.url}\n\n`;
     });
 
-    textContent += `\n\nGenerated from PM Launchpad`;
+    textContent += `\n\nGenerated from Ready PM`;
 
     const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);

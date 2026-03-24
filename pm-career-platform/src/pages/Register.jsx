@@ -45,7 +45,7 @@ export default function Register() {
           <div className="hero-badge">
             <Trophy size={40} color="#f59e0b" />
           </div>
-          <h1>PM Launchpad</h1>
+          <h1>Ready PM</h1>
           <p className="hero-subtitle">Your personalized path to becoming a Product Manager</p>
           <div className="hero-features">
             <div className="feature"><Sparkles size={16} /> AI-Powered Evaluation</div>

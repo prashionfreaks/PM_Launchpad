@@ -43,10 +43,10 @@ export default function PublicPortfolio() {
           <div className="pub-error-icon">
             <Trophy size={48} color="#f59e0b" />
           </div>
-          <h1>PM Launchpad</h1>
+          <h1>Ready PM</h1>
           <h2>Portfolio Not Found</h2>
           <p>This portfolio link may be invalid or expired.</p>
-          <Link to="/" className="pub-cta-btn">Go to PM Launchpad</Link>
+          <Link to="/" className="pub-cta-btn">Go to Ready PM</Link>
         </div>
       </div>
     );
@@ -77,7 +77,7 @@ export default function PublicPortfolio() {
       <div className="pub-topbar">
         <div className="pub-topbar-brand">
           <Trophy size={18} color="#f59e0b" />
-          <span>PM Launchpad</span>
+          <span>Ready PM</span>
         </div>
         <Link to="/" className="pub-topbar-link">
           Start Your Journey <ExternalLink size={12} />
@@ -264,7 +264,7 @@ export default function PublicPortfolio() {
         {/* Footer */}
         <div className="pub-footer">
           <Trophy size={18} color="#f59e0b" />
-          <span>Built with <strong>PM Launchpad</strong></span>
+          <span>Built with <strong>Ready PM</strong></span>
           <Link to="/">Start Your PM Journey <ExternalLink size={12} /></Link>
         </div>
       </div>

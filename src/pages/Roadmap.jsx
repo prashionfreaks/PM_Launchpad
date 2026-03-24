@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { getMilestones } from '../data/roadmapData';
+import { getMilestones, getTechnicalReadinessMilestone } from '../data/roadmapData';
 import { pmRoles } from '../data/quizQuestions';
 import {
   Lock, Unlock, CheckCircle, Star, BookOpen, ExternalLink,
@@ -22,6 +22,7 @@ export default function Roadmap() {
   const navigate = useNavigate();
   const [expandedMilestone, setExpandedMilestone] = useState(null);
   const [quizMode, setQuizMode] = useState(null);
+  const [shuffledQuiz, setShuffledQuiz] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
@@ -42,6 +43,7 @@ export default function Roadmap() {
 
   const role = pmRoles.find(r => r.id === state.selectedPath);
   const milestones = getMilestones(state.selectedPath);
+  const techMilestone = getTechnicalReadinessMilestone(state.selectedPath);
 
   const isMilestoneUnlocked = (index) => {
     if (index === 0) return true;
@@ -58,9 +60,20 @@ export default function Roadmap() {
   );
 
   const completedCount = milestones.filter(m => isMilestonePassed(m.id)).length;
+  const allRegularPassed = completedCount === milestones.length;
+  const techMilestonePassed = isMilestonePassed(techMilestone.id);
 
   const handleQuizStart = (milestone) => {
+    const shuffled = milestone.quiz.map(q => {
+      const indexed = q.options.map((text, i) => ({ text, isCorrect: i === q.answer }));
+      for (let i = indexed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+      }
+      return { q: q.q, options: indexed.map(o => o.text), answer: indexed.findIndex(o => o.isCorrect) };
+    });
     setQuizMode(milestone);
+    setShuffledQuiz(shuffled);
     setQuizAnswers({});
     setQuizSubmitted(false);
   };
@@ -71,10 +84,10 @@ export default function Roadmap() {
 
   const handleQuizSubmit = () => {
     const milestone = quizMode;
-    const correct = milestone.quiz.reduce((count, q, i) => {
+    const correct = shuffledQuiz.reduce((count, q, i) => {
       return count + (quizAnswers[i] === q.answer ? 1 : 0);
     }, 0);
-    const score = Math.round((correct / milestone.quiz.length) * 100);
+    const score = Math.round((correct / shuffledQuiz.length) * 100);
 
     dispatch({
       type: 'COMPLETE_MILESTONE_QUIZ',
@@ -108,7 +121,7 @@ export default function Roadmap() {
           <h2>📝 {quizMode.title} — Assessment</h2>
           <p className="quiz-instruction">Score 80% or higher to pass and unlock the next level.</p>
 
-          {quizMode.quiz.map((q, i) => (
+          {shuffledQuiz.map((q, i) => (
             <div key={i} className="mq-card">
               <h4>Q{i + 1}. {q.q}</h4>
               <div className="mq-options">
@@ -130,10 +143,10 @@ export default function Roadmap() {
             <button className="btn-secondary" onClick={() => setQuizMode(null)}>Cancel</button>
             <button
               className="btn-primary"
-              disabled={Object.keys(quizAnswers).length < quizMode.quiz.length}
+              disabled={Object.keys(quizAnswers).length < shuffledQuiz.length}
               onClick={handleQuizSubmit}
             >
-              Submit ({Object.keys(quizAnswers).length}/{quizMode.quiz.length})
+              Submit ({Object.keys(quizAnswers).length}/{shuffledQuiz.length})
             </button>
           </div>
         </div>
@@ -183,13 +196,13 @@ export default function Roadmap() {
           </div>
           <div className="stat">
             <CheckCircle size={20} color="#10b981" />
-            <span>{completedCount}/{milestones.length}</span>
+            <span>{completedCount + (techMilestonePassed ? 1 : 0)}/{milestones.length + 1}</span>
           </div>
         </div>
       </div>
 
       <div className="roadmap-progress-bar">
-        <div className="roadmap-progress-fill" style={{ width: `${(completedCount / milestones.length) * 100}%` }} />
+        <div className="roadmap-progress-fill" style={{ width: `${((completedCount + (techMilestonePassed ? 1 : 0)) / (milestones.length + 1)) * 100}%` }} />
       </div>
 
       <div className="milestones-timeline">
@@ -271,15 +284,90 @@ export default function Roadmap() {
           );
         })}
 
+        {/* Technical Readiness Milestone */}
+        {(() => {
+          const unlocked = allRegularPassed;
+          const passed = techMilestonePassed;
+          const expanded = expandedMilestone === techMilestone.id;
+          const score = state.roadmapProgress[techMilestone.id]?.quizScore;
+
+          return (
+            <div className={`milestone-card tech-readiness ${passed ? 'completed' : ''} ${!unlocked ? 'locked' : ''} ${expanded ? 'expanded' : ''}`}>
+              <div
+                className="milestone-header"
+                onClick={() => unlocked && setExpandedMilestone(expanded ? null : techMilestone.id)}
+              >
+                <div className="milestone-level">
+                  {passed ? (
+                    <CheckCircle size={28} color="#10b981" />
+                  ) : unlocked ? (
+                    <div className="level-badge">💻</div>
+                  ) : (
+                    <Lock size={24} color="#9ca3af" />
+                  )}
+                </div>
+                <div className="milestone-info">
+                  <h3>{techMilestone.title}</h3>
+                  <p>{techMilestone.description}</p>
+                  <div className="milestone-meta">
+                    <span><Star size={14} /> {techMilestone.xpReward} XP</span>
+                    <span><BookOpen size={14} /> {techMilestone.courses.length} courses</span>
+                    {score !== undefined && (
+                      <span className={score >= 80 ? 'score-pass' : 'score-fail'}>Score: {score}%</span>
+                    )}
+                    {!unlocked && <span>Complete all milestones to unlock</span>}
+                  </div>
+                </div>
+                {unlocked && (
+                  <div className="milestone-expand">
+                    {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  </div>
+                )}
+              </div>
+
+              {expanded && unlocked && (
+                <div className="milestone-content">
+                  <h4>📚 Recommended Courses</h4>
+                  <div className="courses-list">
+                    {techMilestone.courses.map((course, ci) => (
+                      <a
+                        key={ci}
+                        href={course.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="course-item"
+                      >
+                        <div className="course-info">
+                          <span className="course-name">{course.name}</span>
+                          <span className="course-platform">
+                            {course.platform} • {course.type === 'free' ? '🆓 Free' : '💰 Paid'}
+                          </span>
+                        </div>
+                        <ExternalLink size={16} />
+                      </a>
+                    ))}
+                  </div>
+
+                  {!passed && (
+                    <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(techMilestone)}>
+                      Take Assessment (need 80% to pass)
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* AI Mock Interview Milestone */}
-        <div className={`milestone-card final ${completedCount === milestones.length ? 'unlocked' : 'locked'}`}>
+        <div className={`milestone-card final ${allRegularPassed && techMilestonePassed ? 'unlocked' : 'locked'}`}>
           <div className="milestone-header" onClick={() => {
-            if (completedCount === milestones.length) navigate('/interview');
+            if (allRegularPassed && techMilestonePassed) navigate('/interview');
           }}>
             <div className="milestone-level">
               {state.interviewResult?.overall >= 70 ? (
                 <CheckCircle size={28} color="#10b981" />
-              ) : completedCount === milestones.length ? (
+              ) : allRegularPassed && techMilestonePassed ? (
                 <div className="level-badge final-badge">🎤</div>
               ) : (
                 <Lock size={24} color="#9ca3af" />
@@ -293,7 +381,7 @@ export default function Roadmap() {
                 {state.interviewResult?.overall >= 70 ? (
                   <span className="score-pass">Score: {state.interviewResult.overall}%</span>
                 ) : (
-                  <span>Complete all milestones to unlock</span>
+                  <span>Complete all milestones + Technical Readiness to unlock</span>
                 )}
               </div>
             </div>

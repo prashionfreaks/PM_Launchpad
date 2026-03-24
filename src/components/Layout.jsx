@@ -45,7 +45,7 @@ export default function Layout() {
           <div className="logo">
             <Trophy size={28} color="#f59e0b" />
             <div>
-              <h1>PM Launchpad</h1>
+              <h1>Ready PM</h1>
               <span className="tagline">Your PM Career Starts Here</span>
             </div>
           </div>

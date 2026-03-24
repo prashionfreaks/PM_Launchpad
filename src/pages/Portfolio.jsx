@@ -1080,7 +1080,7 @@ export default function Portfolio() {
 
           const generateShareUrl = () => {
             const portfolioData = {
-              name: user.name || '', email: user.email || '',
+              name: user.name || '',
               headline: resumeData.headline || portfolio.headline || '',
               currentRole: user.currentRole || '', targetRole: targetRole?.label || '',
               summary: resumeData.summary || portfolio.summary || '',
@@ -1228,8 +1228,8 @@ export default function Portfolio() {
                       <span>Twitter</span>
                     </button>
                     <button className="share-channel email-ch" onClick={() => {
-                      const subject = encodeURIComponent('My PM Portfolio - PM Launchpad');
-                      const body = encodeURIComponent(`Hi,\n\nCheck out my Product Manager portfolio:\n${shareUrl}\n\nBuilt with PM Launchpad.`);
+                      const subject = encodeURIComponent('My PM Portfolio - Ready PM');
+                      const body = encodeURIComponent(`Hi,\n\nCheck out my Product Manager portfolio:\n${shareUrl}\n\nBuilt with Ready PM.`);
                       window.open(`mailto:?subject=${subject}&body=${body}`);
                     }}>
                       <Mail size={18} />

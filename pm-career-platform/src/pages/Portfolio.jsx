@@ -1228,8 +1228,8 @@ export default function Portfolio() {
                       <span>Twitter</span>
                     </button>
                     <button className="share-channel email-ch" onClick={() => {
-                      const subject = encodeURIComponent('My PM Portfolio - PM Launchpad');
-                      const body = encodeURIComponent(`Hi,\n\nCheck out my Product Manager portfolio:\n${shareUrl}\n\nBuilt with PM Launchpad.`);
+                      const subject = encodeURIComponent('My PM Portfolio - Ready PM');
+                      const body = encodeURIComponent(`Hi,\n\nCheck out my Product Manager portfolio:\n${shareUrl}\n\nBuilt with Ready PM.`);
                       window.open(`mailto:?subject=${subject}&body=${body}`);
                     }}>
                       <Mail size={18} />
