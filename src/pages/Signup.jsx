@@ -57,7 +57,7 @@ export default function Signup() {
             <Trophy size={40} color="#f59e0b" />
           </div>
           <h1>Ready PM</h1>
-          <p className="hero-subtitle">Your personalized path to becoming a Product Manager</p>
+          <p className="hero-subtitle">From Aspiring to Hired — your personalized PM career launchpad.</p>
           <div className="hero-features">
             <div className="feature">✦ AI-Powered Evaluation</div>
             <div className="feature">✦ Personalized Roadmap</div>

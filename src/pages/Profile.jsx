@@ -245,13 +245,18 @@ export default function Profile() {
               <div className="skill-bars">
                 {categories.map(cat => {
                   const result = state.quizResults.categoryResults[cat.id];
+                  const pct = result?.percentage || 0;
+                  const barColor = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+                  const tag = pct >= 80 ? 'Strong' : pct >= 50 ? 'Needs Improvement' : 'Critical';
+                  const tagClass = pct >= 80 ? 'skill-tag green' : pct >= 50 ? 'skill-tag amber' : 'skill-tag red';
                   return (
                     <div key={cat.id} className="skill-bar-row">
                       <span className="skill-name">{cat.label}</span>
                       <div className="skill-bar-container">
-                        <div className="skill-bar-fill" style={{ width: `${result?.percentage || 0}%`, background: cat.color }} />
+                        <div className="skill-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
                       </div>
-                      <span className="skill-pct">{result?.percentage || 0}%</span>
+                      <span className="skill-pct" style={{ color: barColor }}>{pct}%</span>
+                      <span className={tagClass}>{tag}</span>
                     </div>
                   );
                 })}

@@ -62,7 +62,7 @@ export default function Layout() {
             <Trophy size={28} color="#f59e0b" />
             <div>
               <h1>Ready PM</h1>
-              <span className="tagline">Your PM Career Starts Here</span>
+              <span className="tagline">From Aspiring to Hired.</span>
             </div>
           </div>
         </div>
