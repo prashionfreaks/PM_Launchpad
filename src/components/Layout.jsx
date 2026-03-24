@@ -29,7 +29,7 @@ export default function Layout() {
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(
-    () => localStorage.getItem('pm-theme') || 'light'
+    () => localStorage.getItem('pm-theme') || 'dark'
   );
 
   useEffect(() => {
