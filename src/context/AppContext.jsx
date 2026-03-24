@@ -1,4 +1,5 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -72,13 +73,35 @@ function reducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, null, loadState);
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     localStorage.setItem('pm-platform-state', JSON.stringify(state));
   }, [state]);
 
+  useEffect(() => {
+    // Get current session on load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    // Listen for auth changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setAuthUser(session?.user ?? null);
+        if (event === 'SIGNED_OUT') {
+          dispatch({ type: 'RESET' });
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, authUser, authLoading }}>
       {children}
     </AppContext.Provider>
   );
