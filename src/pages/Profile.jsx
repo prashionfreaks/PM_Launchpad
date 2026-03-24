@@ -11,7 +11,7 @@ import {
   User, Target, Clock, Briefcase, Award,
   BarChart3, Map, CheckCircle, Star, Flame,
   ArrowRight, ClipboardCheck, ChevronLeft, ChevronRight,
-  TrendingUp, TrendingDown, Zap
+  TrendingUp, TrendingDown, Zap, RotateCcw
 } from 'lucide-react';
 
 const profileTabs = [
@@ -195,6 +195,27 @@ export default function Profile() {
       {/* ═══════════ OVERVIEW TAB ═══════════ */}
       {activeTab === 'overview' && (
         <>
+          {!state.quizResults && (
+            <div className="eval-prompt-banner">
+              <div className="eval-prompt-glow" />
+              <div className="eval-prompt-content">
+                <div className="eval-prompt-emoji">🎯</div>
+                <div className="eval-prompt-text">
+                  <h2>Hey {user.name.split(' ')[0]}, where do you stand in the PM market?</h2>
+                  <p>Most aspiring PMs guess their strengths — the smart ones <em>measure</em> them. Take a 5-minute evaluation and get a personalized score across 8 key PM skills.</p>
+                  <div className="eval-prompt-pills">
+                    <span>⚡ 5 min</span>
+                    <span>📊 8 skill areas</span>
+                    <span>🗺️ Personalized roadmap</span>
+                  </div>
+                </div>
+                <button className="eval-prompt-cta" onClick={() => switchTab('evaluation')}>
+                  Find Out Now <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="profile-stats-grid">
             <div className="stat-card">
               <Flame size={28} color="#f59e0b" />
@@ -307,6 +328,28 @@ export default function Profile() {
                 <span className="lab-stat-value">{testsCompleted}</span>
                 <span className="lab-stat-label">Mock Tests Done</span>
               </div>
+            </div>
+          </div>
+
+          <div className="profile-section reset-progress-section">
+            <div className="reset-progress-card">
+              <div className="reset-progress-info">
+                <RotateCcw size={20} color="#ef4444" />
+                <div>
+                  <h4>Reset All Progress</h4>
+                  <p>This will clear your evaluation results, roadmap progress, interview scores and portfolio data. This action cannot be undone.</p>
+                </div>
+              </div>
+              <button
+                className="btn-reset-progress"
+                onClick={() => {
+                  if (confirm('Reset all progress? This cannot be undone.')) {
+                    dispatch({ type: 'RESET' });
+                  }
+                }}
+              >
+                Reset Progress
+              </button>
             </div>
           </div>
         </>

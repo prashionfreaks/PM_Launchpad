@@ -5,44 +5,84 @@ import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, V
 
 const interviewQuestions = {
   product_manager: [
-    "Tell me about a product you admire and why. What would you improve about it?",
-    "How would you prioritize between two features that have equal business impact but different engineering effort?",
-    "Walk me through how you would launch a new product from scratch. What steps would you take?",
-    "Describe a time you had to make a difficult trade-off. How did you decide?",
-    "How would you measure the success of a social media app's new 'Stories' feature?",
-    "A key stakeholder disagrees with your product direction. How do you handle it?",
-    "What's your approach to creating and maintaining a product roadmap?",
-    "How do you gather and incorporate user feedback into product decisions?",
+    { question: "Tell me about a product you admire and why. What would you improve about it?", specialized: false },
+    { question: "How would you prioritize between two features that have equal business impact but different engineering effort?", specialized: false },
+    { question: "Walk me through how you would launch a new product from scratch. What steps would you take?", specialized: false },
+    { question: "Describe a time you had to make a difficult trade-off. How did you decide?", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "How would you measure the success of a social media app's new 'Stories' feature?", specialized: true },
+    { question: "You inherit a product with no documentation, low NPS, and a cluttered roadmap. What's your 30-60-90 day plan?", specialized: true },
+    { question: "Your product has strong engagement but flat revenue. Walk me through how you'd identify and test a monetization strategy.", specialized: true },
   ],
   technical_pm: [
-    "Explain how you would evaluate whether to build a feature in-house or use a third-party API.",
-    "How would you handle a situation where a critical system has 99.5% uptime but the SLA requires 99.9%?",
-    "Walk me through how you'd design the architecture for a real-time notification system.",
-    "How do you prioritize technical debt vs. new feature development?",
-    "Describe how you would communicate a complex technical migration to non-technical stakeholders.",
-    "What metrics would you track for an API platform product?",
-    "How would you approach breaking a monolithic application into microservices?",
-    "What's your process for writing technical specifications?",
+    { question: "How do you prioritize technical debt vs. new feature development?", specialized: false },
+    { question: "Describe how you would communicate a complex technical migration to non-technical stakeholders.", specialized: false },
+    { question: "What's your process for writing technical specifications?", specialized: false },
+    { question: "Explain how you would evaluate whether to build a feature in-house or use a third-party API.", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "How would you handle a situation where a critical system has 99.5% uptime but the SLA requires 99.9%?", specialized: true },
+    { question: "Walk me through how you'd design the architecture for a real-time notification system at scale.", specialized: true },
+    { question: "A production incident takes down your service. Walk me through your role from detection to post-mortem.", specialized: true },
   ],
   data_pm: [
-    "How would you design a recommendation engine for an e-commerce platform?",
-    "What metrics would you use to measure the health of a data pipeline?",
-    "How do you handle data quality issues that affect product decisions?",
-    "Explain how you would set up an experimentation framework for your team.",
-    "How would you balance user privacy with data collection needs?",
-    "Walk me through designing a dashboard for executive stakeholders.",
-    "How do you ensure data-informed decisions don't become data-paralyzed decisions?",
-    "What's your approach to defining and tracking North Star metrics?",
+    { question: "How do you ensure data-informed decisions don't become data-paralyzed decisions?", specialized: false },
+    { question: "How would you balance user privacy with data collection needs?", specialized: false },
+    { question: "What's your approach to defining and tracking North Star metrics?", specialized: false },
+    { question: "Explain how you would set up an experimentation framework for your team.", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "How would you design a recommendation engine for an e-commerce platform, and how would you measure its success?", specialized: true },
+    { question: "You discover a key business metric has been calculated incorrectly for 3 months. What do you do?", specialized: true },
+    { question: "Walk me through designing a self-serve analytics dashboard for executive stakeholders with conflicting data needs.", specialized: true },
   ],
   growth_pm: [
-    "How would you improve user activation for a SaaS product with 30% activation rate?",
-    "Design an experiment to increase trial-to-paid conversion by 20%.",
-    "What growth loops would you implement for a marketplace product?",
-    "How do you balance growth tactics with long-term user experience?",
-    "Walk me through your approach to reducing churn by analyzing cohort data.",
-    "How would you design an effective referral program?",
-    "What metrics matter most in the AARRR framework and why?",
-    "How do you identify the biggest growth lever for a product?",
+    { question: "How do you balance growth tactics with long-term user experience?", specialized: false },
+    { question: "What metrics matter most in the AARRR framework and why?", specialized: false },
+    { question: "How do you identify the biggest growth lever for a product?", specialized: false },
+    { question: "Describe a time you had to make a difficult trade-off. How did you decide?", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "Your signup funnel converts at 12%. Walk me through your structured approach to diagnosing and improving it.", specialized: true },
+    { question: "Design a referral programme for a B2C fintech app. What mechanics, incentives, and metrics would you use?", specialized: true },
+    { question: "Your K-factor is 0.6 and CAC exceeds LTV. What's your growth strategy for the next quarter?", specialized: true },
+  ],
+  design_pm: [
+    { question: "How do you gather and incorporate user feedback into product decisions?", specialized: false },
+    { question: "Describe a time you had to make a difficult trade-off. How did you decide?", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "How would you measure the success of a redesigned onboarding flow?", specialized: false },
+    { question: "Walk me through how you would launch a new product from scratch. What steps would you take?", specialized: false },
+    { question: "Quantitative data shows users love a feature but qualitative research reveals frustration. How do you reconcile this?", specialized: true },
+    { question: "Your product serves both power users and first-time users. How do you design for both without compromising either?", specialized: true },
+    { question: "A designer presents a visually stunning UI but usability testing shows users are confused. What's your next step?", specialized: true },
+  ],
+  ai_pm: [
+    { question: "How do you prioritize between two features that have equal business impact but different engineering effort?", specialized: false },
+    { question: "How do you ensure data-informed decisions don't become data-paralyzed decisions?", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "What's your approach to defining and tracking North Star metrics?", specialized: false },
+    { question: "Walk me through how you would launch a new product from scratch. What steps would you take?", specialized: false },
+    { question: "Stakeholders want to 'add AI' to the product. How do you evaluate this request and define a responsible roadmap?", specialized: true },
+    { question: "Your ML model achieves 95% accuracy in testing but underperforms in production. Walk me through your investigation.", specialized: true },
+    { question: "Users report your AI assistant gives confident but incorrect answers. What product and technical interventions do you prioritise?", specialized: true },
+  ],
+  platform_pm: [
+    { question: "How do you prioritize technical debt vs. new feature development?", specialized: false },
+    { question: "Describe how you would communicate a complex technical migration to non-technical stakeholders.", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "What's your approach to creating and maintaining a product roadmap?", specialized: false },
+    { question: "How do you gather and incorporate user feedback into product decisions?", specialized: false },
+    { question: "Internal teams say your platform API is hard to use. How do you measure and systematically improve developer experience?", specialized: true },
+    { question: "You need to deprecate a widely-used API version. Walk me through your communication and migration strategy.", specialized: true },
+    { question: "Multiple product teams want conflicting platform capabilities. How do you build a transparent prioritization framework?", specialized: true },
+  ],
+  b2b_pm: [
+    { question: "Describe a time you had to make a difficult trade-off. How did you decide?", specialized: false },
+    { question: "How do you gather and incorporate user feedback into product decisions?", specialized: false },
+    { question: "What's your approach to creating and maintaining a product roadmap?", specialized: false },
+    { question: "A key stakeholder disagrees with your product direction. How do you handle it?", specialized: false },
+    { question: "Walk me through how you would launch a new product from scratch. What steps would you take?", specialized: false },
+    { question: "Your largest enterprise client requests a custom feature that doesn't align with your product vision. How do you handle it?", specialized: true },
+    { question: "Sales is closing deals with promises your product can't deliver. What process do you put in place?", specialized: true },
+    { question: "How do you balance building for many small customers versus a few large enterprise clients on the same roadmap?", specialized: true },
   ],
 };
 
@@ -79,6 +119,7 @@ const RING_C = 2 * Math.PI * RING_R;
 export default function Interview() {
   const { state, dispatch } = useApp();
   const [started, setStarted] = useState(false);
+  const [showCameraPrompt, setShowCameraPrompt] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
   const [currentAnswer, setCurrentAnswer] = useState('');
@@ -236,7 +277,7 @@ export default function Interview() {
   useEffect(() => {
     if (started && !finished && voiceSupported && !useTyping) {
       setIsSpeaking(true);
-      speak(questions[currentQ], () => {
+      speak(questions[currentQ].question, () => {
         setIsSpeaking(false);
       });
     }
@@ -496,7 +537,10 @@ export default function Interview() {
               const data = scores.questionScores[qIdx];
               return (
                 <div key={qIdx} className={`question-feedback ${wasSkipped ? 'question-skipped' : ''}`}>
-                  <h4>Q{qIdx + 1}: {q}</h4>
+                  <h4>
+                    Q{qIdx + 1}: {q.question}
+                    {q.specialized && <span className="specialized-badge">Specialized</span>}
+                  </h4>
                   {wasSkipped ? (
                     <p className="skipped-label">Skipped</p>
                   ) : data ? (
@@ -562,10 +606,39 @@ export default function Interview() {
             )}
           </div>
 
-          <button className="btn-primary btn-large" onClick={() => { setStarted(true); if (cameraSupported) startCamera(); }}>
+          <button className="btn-primary btn-large" onClick={() => cameraSupported ? setShowCameraPrompt(true) : setStarted(true)}>
             Start Video Interview <Video size={20} />
           </button>
         </div>
+
+        {showCameraPrompt && (
+          <div className="camera-prompt-overlay">
+            <div className="camera-prompt-modal">
+              <div className="camera-prompt-icon">
+                <Video size={36} color="#6366f1" />
+              </div>
+              <h3>Enable Camera?</h3>
+              <p>
+                For a realistic interview experience, we'd like to turn on your camera.
+                Your video is <strong>never recorded or stored</strong> — it's only visible to you.
+              </p>
+              <div className="camera-prompt-actions">
+                <button
+                  className="btn-secondary"
+                  onClick={() => { setShowCameraPrompt(false); setStarted(true); }}
+                >
+                  Skip, continue without camera
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={() => { setShowCameraPrompt(false); setStarted(true); startCamera(); }}
+                >
+                  <Video size={16} /> Okay, turn it on
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -669,7 +742,8 @@ export default function Interview() {
                 <Volume2 size={18} />
               </div>
               <div className="message-bubble">
-                <p>{questions[i]}</p>
+                {questions[i].specialized && <span className="specialized-badge">Specialized</span>}
+                <p>{questions[i].question}</p>
                 {i === currentQ && isSpeaking && (
                   <div className="speaking-indicator">
                     <span className="wave-bar" /><span className="wave-bar" /><span className="wave-bar" /><span className="wave-bar" />

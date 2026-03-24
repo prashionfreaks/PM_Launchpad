@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Trophy, Mail, Lock, LogIn } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const location = useLocation();
+  const fromSignup = location.state?.fromSignup;
+  const [form, setForm] = useState({ email: location.state?.email || '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -22,7 +24,11 @@ export default function Login() {
     });
     setLoading(false);
     if (error) {
-      setError(error.message);
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        setError('Please verify your email before signing in. Check your inbox.');
+      } else {
+        setError(error.message);
+      }
     } else {
       navigate('/');
     }
@@ -47,7 +53,7 @@ export default function Login() {
           <div className="hero-badge">
             <Trophy size={40} color="#f59e0b" />
           </div>
-          <h1>PM Launchpad</h1>
+          <h1>Ready PM</h1>
           <p className="hero-subtitle">Your personalized path to becoming a Product Manager</p>
           <div className="hero-features">
             <div className="feature">✦ AI-Powered Evaluation</div>
@@ -60,8 +66,10 @@ export default function Login() {
 
       <div className="auth-form-container">
         <div className="auth-card">
-          <h2>Welcome back</h2>
-          <p className="auth-desc">Sign in to continue your PM journey</p>
+          <h2>{fromSignup ? 'Account created!' : 'Welcome back'}</h2>
+          <p className="auth-desc">
+            {fromSignup ? 'Sign in with your new credentials to get started.' : 'Sign in to continue your PM journey'}
+          </p>
 
           <button className="google-btn" onClick={handleGoogle} disabled={googleLoading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={20} />

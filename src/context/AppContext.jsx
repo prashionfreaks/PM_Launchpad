@@ -120,10 +120,16 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     // Get current session on load
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setAuthUser(session?.user ?? null);
+      })
+      .catch(() => {
+        setAuthUser(null);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
 
     // Listen for auth changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

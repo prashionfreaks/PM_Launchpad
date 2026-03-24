@@ -24,6 +24,23 @@
   --font: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-sidebar: #020617;
+  --text: #cbd5e1;
+  --text-light: #94a3b8;
+  --text-heading: #f1f5f9;
+  --primary: #818cf8;
+  --primary-light: #a5b4fc;
+  --primary-bg: rgba(129, 140, 248, 0.12);
+  --border: #334155;
+  --border-light: #1e293b;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -57,6 +74,29 @@ body {
 .sidebar-header {
   padding: 24px 20px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.theme-toggle-topright {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.theme-toggle-topright:hover {
+  background: var(--primary-bg);
+  color: var(--primary);
+  box-shadow: var(--shadow-lg);
 }
 
 .logo {
@@ -167,12 +207,41 @@ body {
   background: var(--primary);
 }
 
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  transition: color 0.15s, background 0.15s;
+  width: 100%;
+  text-align: left;
+}
+.reset-btn:hover {
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.05);
+}
+
 .logout-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px;
-  margin: 8px;
+  padding: 11px 20px;
   border: none;
   background: rgba(239, 68, 68, 0.1);
   color: #f87171;
@@ -181,10 +250,11 @@ body {
   font-size: 13px;
   font-weight: 500;
   transition: background 0.15s;
+  width: 100%;
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.22);
 }
 
 .main-content {
@@ -1839,6 +1909,71 @@ body {
 }
 
 /* ═══════════ Interview ═══════════ */
+.camera-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.2s ease;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.camera-prompt-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: slide-up 0.25s ease;
+}
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.camera-prompt-icon {
+  width: 72px;
+  height: 72px;
+  background: var(--primary-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+.camera-prompt-modal h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 12px;
+}
+.camera-prompt-modal p {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.camera-prompt-modal p strong {
+  color: var(--text);
+}
+.camera-prompt-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.camera-prompt-actions .btn-secondary {
+  font-size: 13px;
+}
+
 .interview-intro {
   max-width: 480px;
   display: flex;
@@ -2161,6 +2296,21 @@ body {
   background: white;
   color: var(--primary);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.specialized-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 .interviewer-avatar {
@@ -2690,6 +2840,96 @@ body {
   color: var(--text);
 }
 
+/* ── Evaluation Prompt Banner ── */
+.eval-prompt-banner {
+  position: relative;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%);
+  border-radius: var(--radius);
+  padding: 36px 40px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.eval-prompt-glow {
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(129,140,248,0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.eval-prompt-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.eval-prompt-emoji {
+  font-size: 52px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 12px rgba(251,191,36,0.5));
+  animation: pulse-emoji 2.5s ease-in-out infinite;
+}
+@keyframes pulse-emoji {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.eval-prompt-text {
+  flex: 1;
+}
+.eval-prompt-text h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.eval-prompt-text p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.eval-prompt-text em { color: #a5b4fc; font-style: normal; font-weight: 600; }
+.eval-prompt-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.eval-prompt-pills span {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.eval-prompt-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #312e81;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.eval-prompt-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+}
+@media (max-width: 700px) {
+  .eval-prompt-content { flex-direction: column; align-items: flex-start; }
+  .eval-prompt-cta { width: 100%; justify-content: center; }
+  .eval-prompt-banner { padding: 24px 20px; }
+}
+
 .profile-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2723,6 +2963,58 @@ body {
 
 .profile-section {
   margin-bottom: 32px;
+}
+
+.reset-progress-section h2 {
+  color: #ef4444 !important;
+}
+.reset-progress-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+.reset-progress-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+}
+.reset-progress-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 4px;
+}
+.reset-progress-info p {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+.btn-reset-progress {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.btn-reset-progress:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+@media (max-width: 600px) {
+  .reset-progress-card { flex-direction: column; align-items: flex-start; }
+  .btn-reset-progress { width: 100%; text-align: center; }
 }
 
 .profile-section h2 {

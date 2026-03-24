@@ -299,6 +299,36 @@ export const quizQuestions = [
 export const roleSpecificQuestions = {
   technical_pm: [
     {
+      id: 'r-tpm-tech-1', category: 'technical',
+      question: 'A new feature requires storing millions of user events per day. Which storage approach do you recommend and why?',
+      options: [
+        { text: 'Use the same relational DB already in place — no need to change', score: 1 },
+        { text: 'Evaluate event-optimized stores (e.g. Kafka + data lake or time-series DB), balancing query patterns, write throughput, cost, and team expertise', score: 4 },
+        { text: 'Store everything in a single JSON column for flexibility', score: 1 },
+        { text: 'Delegate entirely to the data team — it\'s their problem', score: 2 },
+      ],
+    },
+    {
+      id: 'r-tpm-tech-2', category: 'technical',
+      question: 'Engineering wants to introduce a feature flag system. What product benefits do you articulate to justify the investment?',
+      options: [
+        { text: 'Feature flags are just an engineering tool — no PM benefit', score: 1 },
+        { text: 'Enable safe rollouts, targeted experiments, kill switches for incidents, and faster iteration without full redeployments', score: 4 },
+        { text: 'They\'re useful but only for A/B testing', score: 2 },
+        { text: 'Approve it without understanding the use case', score: 1 },
+      ],
+    },
+    {
+      id: 'r-tpm-tech-3', category: 'technical',
+      question: 'You\'re building a payments feature. What security and compliance considerations do you include in the PRD?',
+      options: [
+        { text: 'Security is handled by the security team — not in scope for the PRD', score: 1 },
+        { text: 'Include PCI-DSS requirements, encryption standards, fraud detection, audit logging, tokenization, and data residency constraints as acceptance criteria', score: 4 },
+        { text: 'Add a note to "make it secure" and let engineering interpret it', score: 2 },
+        { text: 'Focus on the happy path — security can be added in v2', score: 1 },
+      ],
+    },
+    {
       id: 'r-tpm-1', category: 'technical',
       question: 'Your engineering team proposes using GraphQL instead of REST for a new service. How do you evaluate this?',
       options: [
@@ -330,6 +360,36 @@ export const roleSpecificQuestions = {
     },
   ],
   data_pm: [
+    {
+      id: 'r-dpm-tech-1', category: 'analytics',
+      question: 'A stakeholder asks for a dashboard metric but the underlying data has no agreed definition. What do you do?',
+      options: [
+        { text: 'Pick the most common definition and ship the dashboard', score: 2 },
+        { text: 'Facilitate a data governance session to define, document, and socialise the canonical metric definition before building', score: 4 },
+        { text: 'Build multiple versions of the metric and let stakeholders choose', score: 1 },
+        { text: 'Escalate to the data engineering team to decide', score: 1 },
+      ],
+    },
+    {
+      id: 'r-dpm-tech-2', category: 'analytics',
+      question: 'You need to run a cohort retention analysis. What SQL concept is most central to this?',
+      options: [
+        { text: 'UNION ALL to combine multiple tables', score: 1 },
+        { text: 'Self-joins or window functions to compare user activity in the acquisition period versus subsequent periods', score: 4 },
+        { text: 'GROUP BY on user_id to count events', score: 2 },
+        { text: 'A simple SELECT with a WHERE clause on dates', score: 1 },
+      ],
+    },
+    {
+      id: 'r-dpm-tech-3', category: 'analytics',
+      question: 'Your company wants to move analytics from a data warehouse to a data lakehouse. What is your role as a Data PM?',
+      options: [
+        { text: 'It\'s purely an infrastructure decision — stay out of it', score: 1 },
+        { text: 'Define requirements from analytics consumers, ensure SLAs for query performance and data freshness are met, and align migration phases with business priorities', score: 4 },
+        { text: 'Approve whatever the data engineering team proposes', score: 2 },
+        { text: 'Focus only on the BI tooling layer above it', score: 1 },
+      ],
+    },
     {
       id: 'r-dpm-1', category: 'analytics',
       question: 'Your data pipeline has a 6-hour lag, but stakeholders want real-time dashboards. How do you approach this?',
@@ -363,6 +423,36 @@ export const roleSpecificQuestions = {
   ],
   growth_pm: [
     {
+      id: 'r-gpm-tech-1', category: 'analytics',
+      question: 'You\'re diagnosing a sudden 25% drop in organic sign-ups. What is your structured investigation approach?',
+      options: [
+        { text: 'Assume it\'s a seasonality effect and wait it out', score: 1 },
+        { text: 'Segment by channel, device, and geography; check for tracking breakage; review SEO ranking changes; correlate with any recent product or marketing changes', score: 4 },
+        { text: 'Immediately increase paid acquisition budget', score: 1 },
+        { text: 'Send a survey to recent sign-ups asking why they came', score: 2 },
+      ],
+    },
+    {
+      id: 'r-gpm-tech-2', category: 'strategy',
+      question: 'You\'re designing a referral programme. What mechanics determine whether it will compound or fizzle?',
+      options: [
+        { text: 'The size of the reward — bigger is always better', score: 1 },
+        { text: 'Invitee conversion rate, double-sided incentive alignment, share trigger placement, reward redemption friction, and whether referred users retain at similar rates', score: 4 },
+        { text: 'How many users you seed the programme with initially', score: 2 },
+        { text: 'The channel you use to send the referral link', score: 1 },
+      ],
+    },
+    {
+      id: 'r-gpm-tech-3', category: 'business',
+      question: 'Your payback period on new users is 18 months but you\'re raising a Series B. How does this affect your growth strategy?',
+      options: [
+        { text: 'It doesn\'t matter — focus on top-line growth', score: 1 },
+        { text: 'Prioritise improving payback period through LTV-increasing features or CAC reduction, and model scenarios for investors showing a credible path to unit economics', score: 4 },
+        { text: 'Slow down growth until payback improves', score: 2 },
+        { text: 'Change the payback calculation methodology', score: 1 },
+      ],
+    },
+    {
       id: 'r-gpm-1', category: 'strategy',
       question: 'Your signup funnel converts at 12%. Where do you focus to improve growth?',
       options: [
@@ -394,6 +484,36 @@ export const roleSpecificQuestions = {
     },
   ],
   design_pm: [
+    {
+      id: 'r-dspm-tech-1', category: 'design',
+      question: 'Your product serves both power users and first-time users. How do you design for both without diluting the experience?',
+      options: [
+        { text: 'Design for the majority user type and ignore the other', score: 1 },
+        { text: 'Use progressive disclosure — surface core actions prominently, layer advanced features behind discoverability patterns like contextual menus or settings', score: 4 },
+        { text: 'Build two completely separate product interfaces', score: 2 },
+        { text: 'Ask users to select their experience level on signup and maintain separate codebases', score: 1 },
+      ],
+    },
+    {
+      id: 'r-dspm-tech-2', category: 'design',
+      question: 'A user researcher wants 6 weeks for a full research study before you can start designing. How do you balance rigour with speed?',
+      options: [
+        { text: 'Skip research entirely — you know the users well enough', score: 1 },
+        { text: 'Negotiate a lean research sprint: 5-7 user interviews in 1 week to validate key assumptions, with deeper research scheduled post-launch', score: 4 },
+        { text: 'Wait the full 6 weeks — research is non-negotiable', score: 2 },
+        { text: 'Use a survey instead to gather data faster', score: 2 },
+      ],
+    },
+    {
+      id: 'r-dspm-tech-3', category: 'design',
+      question: 'Heatmap data shows users are clicking on a non-clickable element. What does this signal and how do you act?',
+      options: [
+        { text: 'Nothing — users click on random things all the time', score: 1 },
+        { text: 'Strong signal that users expect interactivity there. Investigate intent through session recordings, then either make the element functional or redesign to reduce the false affordance', score: 4 },
+        { text: 'Add a tooltip explaining it\'s not clickable', score: 2 },
+        { text: 'Remove the element to eliminate the confusion', score: 1 },
+      ],
+    },
     {
       id: 'r-dspm-1', category: 'design',
       question: 'You\'re launching a feature in a market with accessibility regulations (ADA/WCAG). How do you handle this?',
@@ -427,6 +547,36 @@ export const roleSpecificQuestions = {
   ],
   ai_pm: [
     {
+      id: 'r-aipm-tech-1', category: 'technical',
+      question: 'You\'re evaluating whether to use a fine-tuned model vs. prompt engineering with a foundation model for your use case. What factors drive this decision?',
+      options: [
+        { text: 'Fine-tuning is always better because it\'s more customised', score: 1 },
+        { text: 'Consider data availability, inference cost, latency, how specialised the task is, how often the task evolves, and whether prompt engineering achieves acceptable quality first', score: 4 },
+        { text: 'Use prompt engineering — it\'s always cheaper and fast enough', score: 2 },
+        { text: 'Let the ML team decide without PM input', score: 1 },
+      ],
+    },
+    {
+      id: 'r-aipm-tech-2', category: 'analytics',
+      question: 'Users report your AI assistant gives confident but wrong answers. What product and technical interventions do you prioritise?',
+      options: [
+        { text: 'Add a disclaimer that the AI can make mistakes', score: 1 },
+        { text: 'Implement RAG for grounding, add confidence scoring, build a human review loop for high-stakes outputs, create feedback mechanisms, and track hallucination rate as a KPI', score: 4 },
+        { text: 'Retrain the model with more data', score: 2 },
+        { text: 'Limit the assistant to only pre-written answers', score: 1 },
+      ],
+    },
+    {
+      id: 'r-aipm-tech-3', category: 'strategy',
+      question: 'A regulator asks you to explain how your AI model makes decisions for loan approvals. What is your response?',
+      options: [
+        { text: 'Explain that neural networks are black boxes and transparency isn\'t possible', score: 1 },
+        { text: 'Provide model documentation, feature importance explanations, fairness audits, and ensure an explainability framework (SHAP/LIME) is built into the system architecture', score: 4 },
+        { text: 'Commit to providing documentation and figure it out afterwards', score: 2 },
+        { text: 'Switch to a simpler rule-based system to avoid the question', score: 1 },
+      ],
+    },
+    {
       id: 'r-aipm-1', category: 'technical',
       question: 'Your ML model achieves 95% accuracy in testing but performs poorly in production. What do you investigate?',
       options: [
@@ -458,6 +608,36 @@ export const roleSpecificQuestions = {
     },
   ],
   platform_pm: [
+    {
+      id: 'r-plpm-tech-1', category: 'technical',
+      question: 'You\'re designing a rate-limiting strategy for your public API. What considerations inform the policy?',
+      options: [
+        { text: 'Apply a single global limit to all consumers equally', score: 1 },
+        { text: 'Tier limits by plan/use case, use sliding window algorithms, return informative 429 responses with retry-after headers, and monitor for abuse patterns', score: 4 },
+        { text: 'No rate limiting — it adds latency and reduces developer experience', score: 1 },
+        { text: 'Let engineering set limits without consulting business needs', score: 2 },
+      ],
+    },
+    {
+      id: 'r-plpm-tech-2', category: 'technical',
+      question: 'An external developer reports that your webhook delivery is unreliable. What systemic improvements do you prioritise?',
+      options: [
+        { text: 'Tell them to poll the API instead', score: 1 },
+        { text: 'Implement retry logic with exponential backoff, delivery status tracking, a webhook log dashboard for developers, and SLA guarantees with alerting', score: 4 },
+        { text: 'Investigate only their specific integration', score: 2 },
+        { text: 'Add more documentation about webhook handling', score: 1 },
+      ],
+    },
+    {
+      id: 'r-plpm-tech-3', category: 'strategy',
+      question: 'Your platform team is asked to support both internal product teams and external third-party developers. How do you manage the tension between these two customer segments?',
+      options: [
+        { text: 'Always prioritise internal teams — they drive direct revenue', score: 1 },
+        { text: 'Segment the roadmap, define separate SLAs, ensure backward-compatible changes, use internal teams as design partners for external APIs, and build a developer feedback programme', score: 4 },
+        { text: 'Build separate APIs for each segment', score: 2 },
+        { text: 'Prioritise external developers since they grow the ecosystem', score: 1 },
+      ],
+    },
     {
       id: 'r-plpm-1', category: 'technical',
       question: 'Internal teams complain your platform API is hard to use. How do you improve developer experience?',
@@ -491,6 +671,36 @@ export const roleSpecificQuestions = {
   ],
   b2b_pm: [
     {
+      id: 'r-b2b-tech-1', category: 'business',
+      question: 'A prospect\'s security team requires SOC 2 Type II compliance before signing. Your product isn\'t certified yet. How do you handle this?',
+      options: [
+        { text: 'Tell them it\'s in progress and close the deal anyway', score: 1 },
+        { text: 'Assess certification timeline and cost, evaluate if this deal warrants accelerating the audit, offer a security questionnaire bridge, and set honest expectations on timelines', score: 4 },
+        { text: 'Tell them SOC 2 isn\'t necessary for your product', score: 1 },
+        { text: 'Start the SOC 2 process immediately regardless of deal size', score: 2 },
+      ],
+    },
+    {
+      id: 'r-b2b-tech-2', category: 'stakeholder',
+      question: 'Your enterprise customer wants a dedicated instance of your SaaS product (single-tenant). How do you evaluate and price this request?',
+      options: [
+        { text: 'Reject it — multi-tenancy is your architecture and it can\'t change', score: 1 },
+        { text: 'Assess infrastructure cost, operational overhead, strategic value of the customer, and whether it sets a precedent; create a dedicated infrastructure tier with appropriate pricing', score: 4 },
+        { text: 'Agree immediately to close the deal', score: 1 },
+        { text: 'Charge the same price as multi-tenant — it\'s the same product', score: 1 },
+      ],
+    },
+    {
+      id: 'r-b2b-tech-3', category: 'strategy',
+      question: 'You\'re building an integration marketplace for your B2B platform. How do you decide which integrations to build first?',
+      options: [
+        { text: 'Build the most technically complex integrations first to showcase capability', score: 1 },
+        { text: 'Analyse which tools appear in the most customers\' tech stacks, measure integration requests in sales cycles, and prioritise integrations that unblock deals or reduce churn', score: 4 },
+        { text: 'Let customers vote and build whatever gets the most votes', score: 2 },
+        { text: 'Replicate whatever integrations your top competitor has', score: 1 },
+      ],
+    },
+    {
       id: 'r-b2b-1', category: 'business',
       question: 'Your largest enterprise client requests a custom feature that doesn\'t align with your product vision. How do you handle it?',
       options: [
@@ -522,6 +732,36 @@ export const roleSpecificQuestions = {
     },
   ],
   product_manager: [
+    {
+      id: 'r-pm-tech-1', category: 'strategy',
+      question: 'You\'re conducting a competitive analysis for a product in a crowded market. What framework and data sources do you use?',
+      options: [
+        { text: 'Check competitor websites and write up your impressions', score: 1 },
+        { text: 'Combine a positioning matrix with Jobs-to-be-Done analysis, use app reviews, sales call recordings, win/loss data, and direct user interviews to map real differentiation gaps', score: 4 },
+        { text: 'Use a standard SWOT analysis based on public information', score: 2 },
+        { text: 'Focus only on pricing comparisons', score: 1 },
+      ],
+    },
+    {
+      id: 'r-pm-tech-2', category: 'business',
+      question: 'Your product has product-market fit signals in one segment but not another. How do you decide where to focus?',
+      options: [
+        { text: 'Try to serve both segments equally', score: 1 },
+        { text: 'Double down on the segment with fit: analyse retention, NPS, and willingness to pay; narrow ICP; and build a repeatable go-to-market before expanding to adjacent segments', score: 4 },
+        { text: 'Pivot to the larger market even without fit signals', score: 1 },
+        { text: 'Raise more funding to serve both simultaneously', score: 2 },
+      ],
+    },
+    {
+      id: 'r-pm-tech-3', category: 'agile',
+      question: 'You\'re launching a major feature to a global user base. What does your go-to-market and rollout plan look like?',
+      options: [
+        { text: 'Ship to everyone at once and monitor metrics', score: 1 },
+        { text: 'Staged rollout by cohort, localisation review, internal dogfooding, aligned comms across marketing/support/sales, feature flags for rollback, and defined success criteria with review gates', score: 4 },
+        { text: 'Let engineering manage the deployment — it\'s their domain', score: 2 },
+        { text: 'Send an email announcement and ship to all users', score: 1 },
+      ],
+    },
     {
       id: 'r-pm-1', category: 'strategy',
       question: 'You\'re a new PM joining a team with no existing product documentation. What\'s your first month plan?',

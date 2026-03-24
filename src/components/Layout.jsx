@@ -1,10 +1,11 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { supabase } from '../lib/supabase';
 import {
-  User, ClipboardCheck, BarChart3, Map, FlaskConical,
-  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X
+  User, Map, FlaskConical,
+  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X, Sun, Moon
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const navItems = [
   { path: '/profile', label: 'Profile', icon: User },
@@ -18,7 +19,22 @@ const navItems = [
 export default function Layout() {
   const { state, dispatch } = useApp();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    dispatch({ type: 'RESET' });
+    navigate('/login');
+  };
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('pm-theme') || 'light'
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('pm-theme', theme);
+  }, [theme]);
 
   const totalXP = Object.values(state.roadmapProgress).reduce(
     (sum, m) => sum + (m.passed ? (m.xpReward || 0) : 0), 0
@@ -84,19 +100,18 @@ export default function Layout() {
           })}
         </nav>
 
-        {state.user && (
-          <button className="logout-btn" onClick={() => {
-            if (confirm('Reset all progress? This cannot be undone.')) {
-              dispatch({ type: 'RESET' });
-            }
-          }}>
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
-            <span>Reset Progress</span>
+            <span>Log Out</span>
           </button>
-        )}
+        </div>
       </aside>
 
       <main className="main-content">
+        <button className="theme-toggle-topright" onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')} title="Toggle theme">
+          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
         <Outlet />
       </main>
     </div>

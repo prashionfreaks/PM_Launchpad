@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { pmRoles } from '../data/quizQuestions';
 import { Trophy, ArrowRight, Sparkles } from 'lucide-react';
 
+
 const currentRoles = [
   'Software Engineer', 'Data Analyst', 'Designer', 'Business Analyst',
   'Marketing', 'Project Manager', 'Student', 'Other'
@@ -16,17 +17,17 @@ const timelineOptions = [
 ];
 
 export default function Register() {
-  const { dispatch } = useApp();
+  const { dispatch, authUser } = useApp();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
-    name: '', email: '', currentRole: '', yoe: '',
+    name: '', email: authUser?.email || '', currentRole: '', yoe: '',
     targetRole: '', timeline: ''
   });
   const update = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
 
   const canProceed = () => {
-    if (step === 0) return form.name && form.email;
+    if (step === 0) return form.name;
     if (step === 1) return form.currentRole && form.yoe;
     if (step === 2) return form.targetRole && form.timeline;
     return false;
@@ -75,13 +76,6 @@ export default function Register() {
                 <input
                   type="text" placeholder="Enter your full name"
                   value={form.name} onChange={e => update('name', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email" placeholder="your@email.com"
-                  value={form.email} onChange={e => update('email', e.target.value)}
                 />
               </div>
             </>
