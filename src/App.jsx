@@ -16,6 +16,7 @@ import Interview from './pages/Interview';
 import Jobs from './pages/Jobs';
 import Portfolio from './pages/Portfolio';
 import PublicPortfolio from './pages/PublicPortfolio';
+import Community from './pages/Community';
 import './App.css';
 
 function AppRoutes() {
@@ -80,6 +81,7 @@ function AppRoutes() {
         <Route path="/interview" element={<Interview />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/community" element={<Community />} />
       </Route>
     </Routes>
   );

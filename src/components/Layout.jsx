@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import {
   User, Map, FlaskConical,
-  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X, Sun, Moon
+  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X, Sun, Moon, Users
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -14,6 +14,7 @@ const navItems = [
   { path: '/interview', label: 'Interview', icon: Mic },
   { path: '/jobs', label: 'Jobs', icon: Briefcase },
   { path: '/portfolio', label: 'Portfolio', icon: FolderOpen },
+  { path: '/community', label: 'Community', icon: Users },
 ];
 
 export default function Layout() {

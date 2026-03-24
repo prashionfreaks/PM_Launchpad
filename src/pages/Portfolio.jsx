@@ -10,325 +10,314 @@ import {
 
 // Resume parser — extracts structured data from raw text
 function parseResumeText(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  // Normalize: collapse multiple spaces, standardize dashes
+  const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = normalizedText.split('\n').map(l => l.trim()).filter(Boolean);
+
   const result = {
-    name: '',
-    headline: '',
-    summary: '',
-    email: '',
-    phone: '',
-    skills: [],
-    experience: [],
-    education: [],
-    certifications: [],
-    industries: [],
+    name: '', headline: '', summary: '', email: '', phone: '', linkedin: '',
+    skills: [], experience: [], education: [], certifications: [], industries: [],
   };
 
-  // Section header patterns
-  const sectionPatterns = {
-    contact: /^(contact|contact\s*info|contact\s*information|personal\s*info)/i,
-    summary: /^(professional\s*summary|summary|profile|objective|about\s*me|career\s*objective)/i,
-    experience: /^(experience|work\s*experience|professional\s*experience|employment|work\s*history)/i,
-    education: /^(education|academic|qualifications|degrees)/i,
-    skills: /^(skills|technical\s*skills|core\s*skills|key\s*skills|competencies|tools\s*&?\s*technologies|technologies)/i,
-    certifications: /^(certifications?|licenses?\s*&?\s*certifications?|professional\s*development|courses?\s*&?\s*certifications?)/i,
-    projects: /^(projects?|products?\s*built|key\s*projects|portfolio)/i,
-  };
-
-  // Extract email
-  const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  // ── Contact field extraction ──────────────────────────────────────────────
+  const emailMatch = normalizedText.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
   if (emailMatch) result.email = emailMatch[0];
 
-  // Extract phone
-  const phoneMatch = text.match(/(?:\+?\d{1,3}[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/);
-  if (phoneMatch) result.phone = phoneMatch[0];
+  const phoneMatch = normalizedText.match(/(?:\+?\d{1,3}[\s\-.]?)?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4}/);
+  if (phoneMatch) result.phone = phoneMatch[0].trim();
 
-  // Try to get name from first meaningful line (not an email/phone/header)
-  for (let i = 0; i < Math.min(5, lines.length); i++) {
+  const linkedinMatch = normalizedText.match(/(?:linkedin\.com\/in\/)([\w\-]+)/i);
+  if (linkedinMatch) result.linkedin = 'https://linkedin.com/in/' + linkedinMatch[1];
+
+  // ── Section header detection ─────────────────────────────────────────────
+  const sectionPatterns = {
+    summary: /^(professional\s*summary|summary|profile|objective|about(\s*me)?|career\s*(objective|summary)|overview|personal\s*statement)/i,
+    experience: /^(experience|work(\s*experience)?|professional\s*experience|employment(\s*history)?|work\s*history|career\s*history|positions?\s*held)/i,
+    education: /^(education|academic(\s*(background|qualifications))?|qualifications?|degrees?|schooling)/i,
+    skills: /^(skills?|technical\s*skills?|core\s*(skills?|competencies)|key\s*skills?|competencies|tools(\s*[&+]\s*technologies?)?|technologies|proficiencies|areas\s*of\s*expertise|expertise)/i,
+    certifications: /^(certifications?|licen[sc]es?(\s*[&+]\s*certifications?)?|professional\s*development|courses?(\s*[&+]\s*certifications?)?|credentials?|training)/i,
+    projects: /^(projects?|products?\s*(built|developed)?|key\s*projects?|portfolio|selected\s*projects?|product\s*experience)/i,
+    awards: /^(awards?|honors?|achievements?|recognitions?)/i,
+  };
+
+  const isSectionHeader = (line) => {
+    // Remove trailing punctuation, dashes, underscores used as dividers
+    const clean = line.replace(/[:\-–—_═─►▸|]+/g, '').trim();
+    // All-caps short lines are often section headers (e.g. "EXPERIENCE")
+    if (clean.length > 2 && clean.length < 40 && clean === clean.toUpperCase() && /^[A-Z\s&]+$/.test(clean)) {
+      return Object.keys(sectionPatterns).find(s => sectionPatterns[s].test(clean)) || null;
+    }
+    return Object.keys(sectionPatterns).find(s => sectionPatterns[s].test(clean)) || null;
+  };
+
+  // ── Name & headline ──────────────────────────────────────────────────────
+  for (let i = 0; i < Math.min(6, lines.length); i++) {
     const line = lines[i];
-    if (line.match(/[@.]/)) continue; // skip email/url lines
-    if (line.match(/^\d/)) continue; // skip phone
-    if (line.match(/^(resume|curriculum|cv)/i)) continue;
-    if (Object.values(sectionPatterns).some(p => p.test(line))) continue;
-    if (line.length > 3 && line.length < 50) {
-      result.name = line.replace(/[|•\-–—]/g, '').trim();
-      // Check if next line is a headline
-      if (i + 1 < lines.length) {
-        const nextLine = lines[i + 1];
-        if (!nextLine.match(/[@\d]/) && !Object.values(sectionPatterns).some(p => p.test(nextLine)) && nextLine.length < 80) {
-          result.headline = nextLine.replace(/^[|•\-–—]\s*/, '').trim();
+    if (/[@]/. test(line)) continue;          // email line
+    if (/^\+?\d[\d\s\-().]{6,}/.test(line)) continue; // phone line
+    if (/^(resume|curriculum vitae|cv)\b/i.test(line)) continue;
+    if (isSectionHeader(line)) continue;
+    if (/linkedin\.com|github\.com|http/i.test(line)) continue;
+    if (line.length >= 2 && line.length <= 55) {
+      result.name = line.replace(/[|•\-–—]+/g, '').trim();
+      // Next non-contact line may be headline/title
+      for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
+        const nl = lines[j];
+        if (/[@\d]/.test(nl) || isSectionHeader(nl) || /linkedin|github|http/i.test(nl)) continue;
+        if (nl.length > 3 && nl.length < 90) {
+          result.headline = nl.replace(/^[|•\-–—]\s*/, '').trim();
         }
+        break;
       }
       break;
     }
   }
 
-  // Parse sections
+  // ── Split into sections ──────────────────────────────────────────────────
   let currentSection = null;
   let currentLines = [];
   const sections = {};
 
   for (const line of lines) {
-    // Check if this line is a section header
-    let matched = false;
-    for (const [section, pattern] of Object.entries(sectionPatterns)) {
-      if (pattern.test(line.replace(/[:\-–—_═─]/g, '').trim())) {
-        if (currentSection) {
-          sections[currentSection] = currentLines;
-        }
-        currentSection = section;
-        currentLines = [];
-        matched = true;
-        break;
-      }
-    }
-    if (!matched && currentSection) {
+    const sec = isSectionHeader(line);
+    if (sec) {
+      if (currentSection) sections[currentSection] = currentLines;
+      currentSection = sec;
+      currentLines = [];
+    } else if (currentSection) {
       currentLines.push(line);
     }
   }
-  if (currentSection) {
-    sections[currentSection] = currentLines;
-  }
+  if (currentSection) sections[currentSection] = currentLines;
 
-  // Parse summary
+  // ── Summary ──────────────────────────────────────────────────────────────
   if (sections.summary) {
-    result.summary = sections.summary.join(' ').substring(0, 500);
+    result.summary = sections.summary.join(' ').replace(/\s+/g, ' ').trim().substring(0, 600);
   }
 
-  // Parse skills
+  // ── Skills ───────────────────────────────────────────────────────────────
   if (sections.skills) {
-    // First check if skills are one-per-line (common in sidebar layouts)
-    const onePerLine = sections.skills.every(line => line.split(/[,•|;·]/).length <= 2);
-    let rawSkills;
-    if (onePerLine && sections.skills.length >= 3) {
-      // Each line is a skill (or "Skill / Skill")
-      rawSkills = sections.skills.flatMap(line => line.split(/[,•|;·]/).map(s => s.trim())).filter(s => s.length > 1 && s.length < 50);
-    } else {
-      const skillText = sections.skills.join(' ');
-      rawSkills = skillText.split(/[,•|;·]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 50);
+    const rawSkills = [];
+    for (const line of sections.skills) {
+      // Handle "Category: skill1, skill2" format
+      const colonIdx = line.indexOf(':');
+      const content = colonIdx !== -1 && colonIdx < 30 ? line.slice(colonIdx + 1) : line;
+      // Split on common delimiters
+      const parts = content.split(/[,•|;·\/\\]+/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 60);
+      rawSkills.push(...parts);
     }
-    result.skills = [...new Set(rawSkills)].slice(0, 25);
+    result.skills = [...new Set(rawSkills)].slice(0, 30);
   }
 
-  // Parse experience
+  // ── Experience ───────────────────────────────────────────────────────────
   if (sections.experience) {
-    let currentExp = null;
     const expEntries = [];
+    let cur = null;
     const expLines = sections.experience;
-    const datePattern = /\b(20\d{2}|19\d{2}|present|current|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i;
-    const fullDatePattern = /((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\w]*\.?\s*\d{0,4}\s*[-–—to/]*\s*(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?[\w]*\.?\s*\d{0,4}|20\d{2}\s*[-–—to/]*\s*(?:20\d{2}|present|current)|\d{4}\s*[-–—]\s*\d{4})/i;
-    const bulletPattern = /^[\-•*◦▪▸►●○]\s*/;
+
+    const dateRx = /\b(20\d{2}|19\d{2}|present|current|now|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i;
+    const fullDateRx = /((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s*\d{0,4}\s*[-–—to]+\s*(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s*)?\d{0,4}|20\d{2}\s*[-–—to]+\s*(?:20\d{2}|present|current|now)|\d{4}\s*[-–—]\s*\d{4})/i;
+    const bulletRx = /^[\-•*◦▪▸►●○➤✓]\s*/;
+    const separatorRx = /[|,]\s*/;
+
+    const pushCur = () => { if (cur) { expEntries.push(cur); cur = null; } };
+
+    const looksLikeTitle = (line) =>
+      line.length > 2 && line.length < 90 &&
+      !bulletRx.test(line) &&
+      /^[A-Z]/.test(line) &&
+      !/^\d/.test(line);
 
     for (let i = 0; i < expLines.length; i++) {
       const line = expLines[i];
-      const isBullet = bulletPattern.test(line);
-      const hasPipe = /[|•–—]/.test(line);
-      const hasDate = datePattern.test(line);
-      const isShortLine = line.length < 80;
+      const isBullet = bulletRx.test(line);
+      const hasDate = dateRx.test(line);
+      const hasSep = /[|]/.test(line);
+      const next1 = expLines[i + 1] || '';
+      const next2 = expLines[i + 2] || '';
 
-      // Check if this is a bullet/description line
-      if (isBullet && currentExp) {
-        const cleanLine = line.replace(bulletPattern, '').trim();
-        if (cleanLine) {
-          currentExp.description += (currentExp.description ? '\n' : '') + cleanLine;
-        }
+      // Bullet point → append to description
+      if (isBullet) {
+        if (cur) cur.description += (cur.description ? '\n' : '') + line.replace(bulletRx, '').trim();
         continue;
       }
 
-      // Pipe-separated format: "Title | Company | Date"
-      if (hasPipe && isShortLine) {
-        if (currentExp) expEntries.push(currentExp);
-        const parts = line.split(/[|•–—]/).map(p => p.trim()).filter(Boolean);
-        const dateMatch = line.match(fullDatePattern);
-        currentExp = {
-          title: parts[0] || line,
-          company: parts[1] || '',
-          duration: dateMatch ? dateMatch[0] : (parts[2] || ''),
+      // Pipe-separated header: "Title | Company | Date" or "Company | Title | Date"
+      if (hasSep && line.length < 120) {
+        const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+        const dateMatch = line.match(fullDateRx);
+        const duration = dateMatch ? dateMatch[0] : '';
+        const nonDateParts = parts.filter(p => !fullDateRx.test(p) && !dateRx.test(p));
+        pushCur();
+        cur = {
+          title: nonDateParts[0] || parts[0],
+          company: nonDateParts[1] || '',
+          duration,
           description: '',
           id: Date.now() + Math.random(),
         };
         continue;
       }
 
-      // Multi-line format: Title on one line, Company on next, Date on next
-      // Detect: short non-bullet line that looks like a job title
-      if (isShortLine && !isBullet && !hasDate) {
-        // Check if next lines have company/date info
-        const next1 = expLines[i + 1] || '';
-        const next2 = expLines[i + 2] || '';
-        const nextHasDate = datePattern.test(next1) || datePattern.test(next2);
+      // "Title at Company" or "Title, Company"
+      const atMatch = line.match(/^(.+?)\s+at\s+(.+)$/i);
+      if (atMatch && !hasDate && line.length < 100) {
+        pushCur();
+        cur = { title: atMatch[1].trim(), company: atMatch[2].trim(), duration: '', description: '', id: Date.now() + Math.random() };
+        // Grab date from next line if present
+        if (dateRx.test(next1)) {
+          const dm = next1.match(fullDateRx);
+          cur.duration = dm ? dm[0] : next1.trim();
+          i++;
+        }
+        continue;
+      }
 
-        if (nextHasDate || (!currentExp && line.length > 3)) {
-          if (currentExp) expEntries.push(currentExp);
+      // Multi-line entry: title on this line, company+date on next lines
+      if (looksLikeTitle(line) && !hasDate) {
+        const next1HasDate = dateRx.test(next1);
+        const next2HasDate = dateRx.test(next2);
 
-          // Figure out company and duration from following lines
-          let company = '';
-          let duration = '';
-          let skip = 0;
+        if (next1HasDate || next2HasDate || (looksLikeTitle(line) && cur && line.length < 70)) {
+          pushCur();
+          let company = '', duration = '', skip = 0;
 
-          // Next line could be company name
-          if (i + 1 < expLines.length && !bulletPattern.test(next1)) {
-            const dateMatch1 = next1.match(fullDatePattern);
-            if (dateMatch1) {
-              // Next line has date — it might be "Date / Location" or "Company \n Date"
-              duration = dateMatch1[0];
-              const remaining = next1.replace(fullDatePattern, '').replace(/[\/,]\s*/g, '').trim();
-              if (remaining && remaining.length < 40) company = remaining;
+          if (next1 && !bulletRx.test(next1)) {
+            const dm1 = next1.match(fullDateRx);
+            if (dm1) {
+              duration = dm1[0];
+              const rem = next1.replace(fullDateRx, '').replace(/[,/]\s*/g, '').trim();
+              if (rem && rem.length < 60) company = rem;
               skip = 1;
-            } else if (next1.length < 60 && !bulletPattern.test(next1)) {
-              company = next1.replace(/[\/,]\s*$/, '').trim();
+            } else if (next1.length < 80 && !bulletRx.test(next1)) {
+              company = next1.replace(/[,/]\s*$/, '').trim();
               skip = 1;
-              // Check line after for date
-              if (i + 2 < expLines.length) {
-                const dateMatch2 = next2.match(fullDatePattern);
-                if (dateMatch2) {
-                  duration = dateMatch2[0];
-                  skip = 2;
-                }
+              if (next2) {
+                const dm2 = next2.match(fullDateRx);
+                if (dm2) { duration = dm2[0]; skip = 2; }
+                else if (dateRx.test(next2) && next2.length < 40) { duration = next2.trim(); skip = 2; }
               }
             }
           }
 
-          currentExp = {
-            title: line,
-            company,
-            duration,
-            description: '',
-            id: Date.now() + Math.random(),
-          };
+          // Handle "Company | Date" on a single following line
+          if (!company && next1 && /[|]/.test(next1)) {
+            const parts = next1.split('|').map(p => p.trim());
+            const dm = next1.match(fullDateRx);
+            company = parts.find(p => !dateRx.test(p)) || '';
+            duration = dm ? dm[0] : '';
+            skip = 1;
+          }
+
+          cur = { title: line, company, duration, description: '', id: Date.now() + Math.random() };
           i += skip;
           continue;
         }
       }
 
-      // Date line for current entry (fills in duration if missing)
-      if (hasDate && currentExp && !currentExp.duration && isShortLine) {
-        const dateMatch = line.match(fullDatePattern);
-        if (dateMatch) {
-          currentExp.duration = dateMatch[0];
-          const remaining = line.replace(fullDatePattern, '').replace(/[\/,]\s*/g, '').trim();
-          if (remaining && !currentExp.company) currentExp.company = remaining;
+      // Standalone date line — fill duration on current entry
+      if (hasDate && cur && !cur.duration && line.length < 60) {
+        const dm = line.match(fullDateRx);
+        if (dm) {
+          cur.duration = dm[0];
+          const rem = line.replace(fullDateRx, '').replace(/[,/|]\s*/g, '').trim();
+          if (rem && !cur.company) cur.company = rem;
+          continue;
         }
-        continue;
       }
 
-      // Fallback: treat as description for current entry
-      if (currentExp) {
-        const cleanLine = line.replace(bulletPattern, '').trim();
-        if (cleanLine) {
-          currentExp.description += (currentExp.description ? '\n' : '') + cleanLine;
-        }
-      } else if (line.length > 3 && isShortLine) {
-        // Start a new entry
-        currentExp = {
-          title: line,
-          company: '',
-          duration: '',
-          description: '',
-          id: Date.now() + Math.random(),
-        };
+      // Fallback: description line
+      if (cur) {
+        cur.description += (cur.description ? '\n' : '') + line;
       }
     }
-    if (currentExp) expEntries.push(currentExp);
+    pushCur();
     result.experience = expEntries.slice(0, 10);
   }
 
-  // Parse education
+  // ── Education ─────────────────────────────────────────────────────────────
   if (sections.education) {
     const eduEntries = [];
     const eduLines = sections.education;
-    const datePattern = /\b(20\d{2}|19\d{2})\b/;
-    const locationPattern = /^[A-Z][a-zA-Z\s]+,\s*[A-Z]{2}$/;
+    const yearRx = /\b(20\d{2}|19\d{2})\b/;
+    const fullYearRx = /\b\d{4}\s*[-–—to]+\s*(?:\d{4}|present|current)\b/i;
+    const institutionRx = /university|college|institute|school|academy|polytechnic|iit|iim|iise/i;
+    const degreeRx = /\b(b\.?tech|m\.?tech|b\.?e|m\.?e|b\.?sc|m\.?sc|b\.?a|m\.?a|b\.?com|m\.?com|mba|bba|phd|ph\.d|bachelor|master|diploma|associate|doctor)/i;
+    const locationRx = /^[A-Za-z\s]+,\s*([A-Z]{2}|[A-Za-z\s]+)$/;
 
-    // Check if all info is on single pipe/dash-separated lines
-    const isSingleLine = eduLines.some(l => /[|•–—]/.test(l) && datePattern.test(l));
-
-    if (isSingleLine) {
-      for (const line of eduLines) {
-        const yearMatch = line.match(datePattern);
-        const parts = line.split(/[|•–—,]/).map(p => p.trim()).filter(Boolean);
-        eduEntries.push({
-          degree: parts[0] || line,
-          institution: parts[1] || '',
-          year: yearMatch ? yearMatch[0] : (parts[2] || ''),
-          id: Date.now() + Math.random(),
-        });
+    let cur = { degree: '', institution: '', year: '', field: '' };
+    const pushEdu = () => {
+      if (cur.degree || cur.institution) {
+        const deg = cur.field ? `${cur.degree} in ${cur.field}`.replace(/^ in /, '') : cur.degree;
+        eduEntries.push({ degree: deg, institution: cur.institution, year: cur.year, id: Date.now() + Math.random() });
+        cur = { degree: '', institution: '', year: '', field: '' };
       }
-    } else {
-      // Multi-line format: degree, field, institution, date, location on separate lines
-      // Merge consecutive non-date/non-location lines as parts of one entry
-      let current = { degree: '', institution: '', year: '', lines: [] };
+    };
 
-      for (let i = 0; i < eduLines.length; i++) {
-        const line = eduLines[i];
-        const yearMatch = line.match(/\b((?:January|February|March|April|May|June|July|August|September|October|November|December|Aug|Jan|Feb|Mar|Apr|Jun|Jul|Sep|Oct|Nov|Dec)[\w]*\.?\s+\d{4}\s*[-–—]\s*(?:(?:January|February|March|April|May|June|July|August|September|October|November|December|Aug|Jan|Feb|Mar|Apr|Jun|Jul|Sep|Oct|Nov|Dec)[\w]*\.?\s+)?\d{4}|\d{4}\s*[-–—]\s*\d{4})/i);
-        const simpleYearMatch = line.match(datePattern);
-        const isLocation = locationPattern.test(line.trim());
+    for (const line of eduLines) {
+      if (locationRx.test(line.trim())) continue; // skip city/state lines
 
-        if (isLocation) {
-          // Skip location lines
-          continue;
-        } else if (yearMatch || (simpleYearMatch && line.length < 30)) {
-          // Date line — attach to current entry
-          current.year = yearMatch ? yearMatch[0] : (simpleYearMatch ? simpleYearMatch[0] : '');
+      const fullYearMatch = line.match(fullYearRx);
+      const yearMatch = line.match(yearRx);
+
+      if (fullYearMatch || (yearMatch && line.length < 35)) {
+        cur.year = fullYearMatch ? fullYearMatch[0] : yearMatch[0];
+        continue;
+      }
+
+      // Pipe/dash-separated: "Degree | Institution | Year"
+      if (/[|]/.test(line)) {
+        pushEdu();
+        const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+        const ym = line.match(yearRx);
+        cur.degree = parts[0] || '';
+        cur.institution = parts[1] || '';
+        cur.year = ym ? ym[0] : (parts[2] || '');
+        pushEdu();
+        continue;
+      }
+
+      const text = line.trim();
+      if (!text) continue;
+
+      if (institutionRx.test(text)) {
+        if (cur.institution) pushEdu(); // new entry
+        cur.institution = text;
+      } else if (degreeRx.test(text)) {
+        if (cur.degree && cur.institution) pushEdu(); // new entry
+        // Check for "Degree, Field of Study" on same line
+        const commaIdx = text.indexOf(',');
+        if (commaIdx > 0 && commaIdx < text.length - 1) {
+          cur.degree = text.slice(0, commaIdx).trim();
+          cur.field = text.slice(commaIdx + 1).trim();
         } else {
-          // Could be degree, field, or institution
-          const text = line.trim();
-          if (!text) continue;
-
-          // If we already have degree + institution and encounter a new non-date line,
-          // it's likely a new entry
-          if (current.degree && current.institution && current.year) {
-            eduEntries.push({
-              degree: current.degree,
-              institution: current.institution,
-              year: current.year,
-              id: Date.now() + Math.random(),
-            });
-            current = { degree: '', institution: '', year: '', lines: [] };
-          }
-
-          current.lines.push(text);
-
-          // Heuristic: institution names often contain "University", "College", "Institute", "School"
-          if (/university|college|institute|school|academy/i.test(text)) {
-            current.institution = text;
-          } else if (!current.degree) {
-            current.degree = text;
-          } else if (!current.institution) {
-            // Could be a field (e.g., "Computer Science") — merge with degree
-            if (/science|engineering|arts|business|management|technology|studies/i.test(text)) {
-              current.degree = current.degree + ' in ' + text;
-            } else {
-              current.institution = text;
-            }
-          }
+          cur.degree = text;
         }
-      }
-
-      // Push last entry
-      if (current.degree || current.institution) {
-        eduEntries.push({
-          degree: current.degree || current.lines[0] || '',
-          institution: current.institution || '',
-          year: current.year || '',
-          id: Date.now() + Math.random(),
-        });
+      } else if (!cur.degree) {
+        cur.degree = text;
+      } else if (!cur.institution) {
+        cur.institution = text;
+      } else {
+        // Likely a new entry starting
+        pushEdu();
+        cur.degree = text;
       }
     }
+    pushEdu();
     result.education = eduEntries.slice(0, 5);
   }
 
-  // Parse certifications
+  // ── Certifications ───────────────────────────────────────────────────────
   if (sections.certifications) {
     const certEntries = [];
     for (const line of sections.certifications) {
-      const parts = line.split(/[|•–—,]/).map(p => p.trim()).filter(Boolean);
+      if (line.length < 3) continue;
+      const parts = line.split(/[|,–—]/).map(p => p.trim()).filter(Boolean);
       const yearMatch = line.match(/\b(20\d{2}|19\d{2})\b/);
-      if (parts[0] && parts[0].length > 2) {
+      if (parts[0]) {
         certEntries.push({
           name: parts[0],
-          issuer: parts[1] || '',
+          issuer: parts.length > 1 && !yearMatch ? parts[1] : (parts.find(p => !/\d{4}/.test(p) && p !== parts[0]) || ''),
           year: yearMatch ? yearMatch[0] : '',
           id: Date.now() + Math.random(),
         });
@@ -337,27 +326,22 @@ function parseResumeText(text) {
     result.certifications = certEntries.slice(0, 10);
   }
 
-  // Parse projects as products
+  // ── Projects / Products ──────────────────────────────────────────────────
   if (sections.projects) {
     const prodEntries = [];
-    let currentProd = null;
+    let cur = null;
+    const bulletRx = /^[\-•*◦▪▸►●○➤✓]\s*/;
     for (const line of sections.projects) {
-      const hasPipe = /[|•–—]/.test(line);
-      if (hasPipe || (line.length < 80 && !line.match(/^[\-•*]/))) {
-        if (currentProd) prodEntries.push(currentProd);
-        const parts = line.split(/[|•–—]/).map(p => p.trim()).filter(Boolean);
-        currentProd = {
-          name: parts[0] || line,
-          role: parts[1] || '',
-          description: '',
-          id: Date.now() + Math.random(),
-        };
-      } else if (currentProd) {
-        const cleanLine = line.replace(/^[\-•*◦]\s*/, '').trim();
-        if (cleanLine) currentProd.description += (currentProd.description ? ' ' : '') + cleanLine;
+      if (/[|]/.test(line) || (line.length < 80 && !bulletRx.test(line) && /^[A-Z]/.test(line))) {
+        if (cur) prodEntries.push(cur);
+        const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+        cur = { name: parts[0] || line, role: parts[1] || '', description: '', id: Date.now() + Math.random() };
+      } else if (cur) {
+        const clean = line.replace(bulletRx, '').trim();
+        if (clean) cur.description += (cur.description ? ' ' : '') + clean;
       }
     }
-    if (currentProd) prodEntries.push(currentProd);
+    if (cur) prodEntries.push(cur);
     result.products = prodEntries.slice(0, 10);
   }
 
@@ -397,6 +381,8 @@ export default function Portfolio() {
     { id: 'upload', label: 'Upload Resume', icon: Upload },
     { id: 'summary', label: 'Profile Summary', icon: User },
     { id: 'education', label: 'Education', icon: GraduationCap },
+    { id: 'certifications', label: 'Certifications', icon: CheckCircle },
+    { id: 'projects', label: 'Projects', icon: Package },
     { id: 'share', label: 'Share Portfolio', icon: Share2 },
   ];
 
@@ -797,36 +783,10 @@ export default function Portfolio() {
             {uploadState === 'error' && (
               <div className="upload-error">
                 <AlertCircle size={18} />
-                <span>Could not parse the file. Please try a .txt file or paste your resume text below.</span>
+                <span>Could not parse the file. Please try uploading a .txt or .pdf file.</span>
               </div>
             )}
 
-            {/* Manual paste fallback */}
-            <div className="paste-section">
-              <h3>Or paste your resume text</h3>
-              <textarea
-                className="paste-textarea"
-                placeholder="Paste your resume content here..."
-                rows={8}
-                value={rawText}
-                onChange={(e) => setRawText(e.target.value)}
-              />
-              <button
-                className="btn-secondary"
-                disabled={!rawText.trim()}
-                onClick={() => {
-                  setUploadState('parsing');
-                  setTimeout(() => {
-                    const parsed = parseResumeText(rawText);
-                    setParsedData(parsed);
-                    setUploadedFileName('Pasted text');
-                    setUploadState('done');
-                  }, 500);
-                }}
-              >
-                Parse Resume Text
-              </button>
-            </div>
 
             {/* Parsed results */}
             {uploadState === 'done' && parsedData && (
@@ -1051,6 +1011,93 @@ export default function Portfolio() {
                 </div>
               ))}
               {(portfolio.education || []).length === 0 && <p className="empty-text">No education added yet.</p>}
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'certifications' && (
+          <div className="list-section">
+            <div className="section-header">
+              <h2>Certifications</h2>
+              <button className="btn-primary btn-small" onClick={() => setEditing('certifications')}>
+                <Plus size={16} /> Add
+              </button>
+            </div>
+
+            {editing === 'certifications' && (
+              <div className="add-form">
+                <div className="form-row">
+                  <input placeholder="Certification name" value={newItem.name || ''} onChange={e => setNewItem(prev => ({ ...prev, name: e.target.value }))} />
+                  <input placeholder="Issuer (e.g. Google, Coursera)" value={newItem.issuer || ''} onChange={e => setNewItem(prev => ({ ...prev, issuer: e.target.value }))} />
+                  <input placeholder="Year" value={newItem.year || ''} onChange={e => setNewItem(prev => ({ ...prev, year: e.target.value }))} />
+                </div>
+                <div className="form-actions-inline">
+                  <button className="btn-secondary btn-small" onClick={() => { setEditing(null); setNewItem({}); }}>Cancel</button>
+                  <button className="btn-primary btn-small" onClick={() => handleAddItem('certifications')} disabled={!newItem.name}>Save</button>
+                </div>
+              </div>
+            )}
+
+            <div className="items-list">
+              {(portfolio.certifications || []).map(item => (
+                <div key={item.id} className="portfolio-item">
+                  <div>
+                    <h4>{item.name}</h4>
+                    <p>{[item.issuer, item.year].filter(Boolean).join(' • ')}</p>
+                  </div>
+                  <button className="btn-icon" onClick={() => handleRemoveItem('certifications', item.id)}>
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              {(portfolio.certifications || []).length === 0 && <p className="empty-text">No certifications added yet.</p>}
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'projects' && (
+          <div className="list-section">
+            <div className="section-header">
+              <h2>Projects</h2>
+              <button className="btn-primary btn-small" onClick={() => setEditing('projects')}>
+                <Plus size={16} /> Add
+              </button>
+            </div>
+
+            {editing === 'projects' && (
+              <div className="add-form">
+                <div className="form-row">
+                  <input placeholder="Project name" value={newItem.name || ''} onChange={e => setNewItem(prev => ({ ...prev, name: e.target.value }))} />
+                  <input placeholder="Your role (e.g. PM, Lead)" value={newItem.role || ''} onChange={e => setNewItem(prev => ({ ...prev, role: e.target.value }))} />
+                </div>
+                <textarea
+                  placeholder="Brief description (impact, outcome, tools used)"
+                  rows={3}
+                  value={newItem.description || ''}
+                  onChange={e => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                  style={{ width: '100%', marginTop: 8, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-input)', color: 'var(--text)', fontSize: 13, resize: 'vertical' }}
+                />
+                <div className="form-actions-inline">
+                  <button className="btn-secondary btn-small" onClick={() => { setEditing(null); setNewItem({}); }}>Cancel</button>
+                  <button className="btn-primary btn-small" onClick={() => handleAddItem('products')} disabled={!newItem.name}>Save</button>
+                </div>
+              </div>
+            )}
+
+            <div className="items-list">
+              {(portfolio.products || []).map(item => (
+                <div key={item.id} className="portfolio-item">
+                  <div>
+                    <h4>{item.name}</h4>
+                    {item.role && <p className="item-role">{item.role}</p>}
+                    {item.description && <p className="item-desc">{item.description}</p>}
+                  </div>
+                  <button className="btn-icon" onClick={() => handleRemoveItem('products', item.id)}>
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              {(portfolio.products || []).length === 0 && <p className="empty-text">No projects added yet.</p>}
             </div>
           </div>
         )}

@@ -56,12 +56,8 @@ export default function Labs() {
 
   const handleMockTestSubmit = () => {
     const test = mockTestMode;
-    const mcQuestions = test.testQuestions.filter(q => q.type === 'multiple-choice');
-    const correct = mcQuestions.reduce((count, q, i) => {
-      const qIndex = test.testQuestions.indexOf(q);
-      return count + (mtAnswers[qIndex] === q.answer ? 1 : 0);
-    }, 0);
-    const score = mcQuestions.length > 0 ? Math.round((correct / mcQuestions.length) * 100) : 100;
+    const correct = test.testQuestions.reduce((count, q, i) => count + (mtAnswers[i] === q.answer ? 1 : 0), 0);
+    const score = Math.round((correct / test.testQuestions.length) * 100);
 
     dispatch({
       type: 'UPDATE_LABS_PROGRESS',
@@ -79,28 +75,18 @@ export default function Labs() {
         {mockTestMode.testQuestions.map((q, i) => (
           <div key={i} className="mq-card">
             <h4>Q{i + 1}. {q.q}</h4>
-            {q.type === 'multiple-choice' ? (
-              <div className="mq-options">
-                {q.options.map((opt, j) => (
-                  <button
-                    key={j}
-                    className={`mq-option ${mtAnswers[i] === j ? 'selected' : ''}`}
-                    onClick={() => setMtAnswers(prev => ({ ...prev, [i]: j }))}
-                  >
-                    <span className="option-letter">{String.fromCharCode(65 + j)}</span>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <textarea
-                className="open-ended-input"
-                placeholder="Type your answer here... (This is for practice — self-evaluate your response)"
-                rows={4}
-                value={mtAnswers[i] || ''}
-                onChange={e => setMtAnswers(prev => ({ ...prev, [i]: e.target.value }))}
-              />
-            )}
+            <div className="mq-options">
+              {q.options.map((opt, j) => (
+                <button
+                  key={j}
+                  className={`mq-option ${mtAnswers[i] === j ? 'selected' : ''}`}
+                  onClick={() => setMtAnswers(prev => ({ ...prev, [i]: j }))}
+                >
+                  <span className="option-letter">{String.fromCharCode(65 + j)}</span>
+                  {opt}
+                </button>
+              ))}
+            </div>
           </div>
         ))}
 
@@ -123,8 +109,7 @@ export default function Labs() {
         <div className="quiz-result-card passed">
           <CheckCircle size={60} color="#10b981" />
           <h2>Test Complete!</h2>
-          <p>Multiple choice score: <strong>{result?.score}%</strong></p>
-          <p className="test-note">For open-ended questions, compare your answers with best practices and PM frameworks.</p>
+          <p>Your score: <strong>{result?.score}%</strong></p>
           <button className="btn-primary" onClick={() => { setMockTestMode(null); setMtSubmitted(false); setMtAnswers({}); }}>
             Back to Labs
           </button>
@@ -229,18 +214,17 @@ export default function Labs() {
               const result = labsProgress[`test-${test.id}`];
               return (
                 <div key={test.id} className={`test-card ${result?.completed ? 'completed' : ''}`}>
-                  <div className="test-category">{test.category}</div>
+                  <div className="test-card-header">
+                    <div className="test-category">{test.category}</div>
+                    {result?.completed && (
+                      <div className="test-score-badge">{result.score}%</div>
+                    )}
+                  </div>
                   <h3>{test.title}</h3>
                   <div className="test-meta">
                     <span>{test.questions} questions</span>
                     <span><Clock size={14} /> {test.timeLimit}</span>
                   </div>
-                  {result?.completed && (
-                    <div className="test-score">
-                      <CheckCircle size={16} color="#10b981" />
-                      Score: {result.score}%
-                    </div>
-                  )}
                   <button
                     className="btn-primary"
                     onClick={() => { setMockTestMode(test); setMtAnswers({}); setMtSubmitted(false); }}
