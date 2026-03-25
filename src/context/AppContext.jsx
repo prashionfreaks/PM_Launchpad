@@ -23,6 +23,11 @@ const initialState = {
     industries: [],
     resume: null,
   },
+  dailyChallenge: {
+    lastCompletedDate: null,
+    streak: 0,
+    longestStreak: 0,
+  },
 };
 
 function loadState() {
@@ -71,6 +76,21 @@ function reducer(state, action) {
         ...state,
         portfolio: { ...state.portfolio, ...action.payload },
       };
+    case 'COMPLETE_DAILY_CHALLENGE': {
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      const prev = state.dailyChallenge || { lastCompletedDate: null, streak: 0, longestStreak: 0 };
+      if (prev.lastCompletedDate === today) return state; // already done today
+      const newStreak = prev.lastCompletedDate === yesterday ? prev.streak + 1 : 1;
+      return {
+        ...state,
+        dailyChallenge: {
+          lastCompletedDate: today,
+          streak: newStreak,
+          longestStreak: Math.max(newStreak, prev.longestStreak || 0),
+        },
+      };
+    }
     case 'RESET':
       return initialState;
     default:

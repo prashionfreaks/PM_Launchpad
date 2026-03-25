@@ -81,6 +81,9 @@ export default function Layout() {
               <div className="xp-fill" style={{ width: `${Math.min(100, (totalXP / 4500) * 100)}%` }} />
             </div>
             <span className="xp-text">{totalXP} XP</span>
+            {(state.dailyChallenge?.streak > 0) && (
+              <span className="sidebar-streak">🔥 {state.dailyChallenge.streak}</span>
+            )}
           </div>
         )}
 

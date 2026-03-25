@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { pmRoles, categories, quizQuestions, roleWeights, roleSpecificQuestions } from '../data/quizQuestions';
 import { getMilestones, getFastestPath, getTransitionInfo } from '../data/roadmapData';
+import { getTodaysChallenge } from '../data/dailyChallengeData';
+import { pmArticles } from '../data/labsData';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
@@ -54,6 +56,32 @@ export default function Profile() {
 
   const articlesRead = Object.keys(state.labsProgress || {}).filter(k => k.startsWith('article-')).length;
   const testsCompleted = Object.keys(state.labsProgress || {}).filter(k => k.startsWith('test-') && state.labsProgress[k]?.completed).length;
+
+  // ─── Daily Challenge ───
+  const todaysChallenge = getTodaysChallenge();
+  const today = new Date().toDateString();
+  const dailyDone = state.dailyChallenge?.lastCompletedDate === today;
+  const streak = state.dailyChallenge?.streak || 0;
+  const [dcAnswer, setDcAnswer] = useState(null);
+  const [dcSubmitted, setDcSubmitted] = useState(false);
+
+  const handleDCSubmit = () => {
+    if (dcAnswer === null) return;
+    setDcSubmitted(true);
+    if (!dailyDone) dispatch({ type: 'COMPLETE_DAILY_CHALLENGE' });
+  };
+
+  // ─── Skill Gap Recommendations ───
+  const skillRecommendations = {
+    business:     { articles: ['art-2', 'art-3'], testId: 'mt-3' },
+    technical:    { articles: [],                 testId: 'mt-2' },
+    design:       { articles: ['art-1'],           testId: 'mt-9' },
+    stakeholder:  { articles: ['art-6'],           testId: null  },
+    agile:        { articles: ['art-3'],           testId: 'mt-1' },
+    analytics:    { articles: ['art-4'],           testId: 'mt-1' },
+    strategy:     { articles: ['art-2', 'art-5'], testId: 'mt-3' },
+    communication:{ articles: ['art-5', 'art-6'], testId: null  },
+  };
 
   // ─── Quiz Logic ───
   const roleQuestions = roleSpecificQuestions[user.targetRole] || roleSpecificQuestions.product_manager;
@@ -239,6 +267,69 @@ export default function Profile() {
             </div>
           </div>
 
+          {/* ── Daily Challenge ── */}
+          <div className="profile-section">
+            <div className="dc-card">
+              <div className="dc-header">
+                <div className="dc-title-row">
+                  <span className="dc-badge">⚡ Daily Challenge</span>
+                  {streak > 0 && (
+                    <span className="dc-streak">🔥 {streak}-day streak</span>
+                  )}
+                </div>
+                {!dailyDone && !dcSubmitted && (
+                  <p className="dc-subtitle">Answer today's PM scenario to earn +50 XP and keep your streak alive.</p>
+                )}
+              </div>
+
+              {dailyDone && !dcSubmitted ? (
+                <div className="dc-done-state">
+                  <div className="dc-done-icon">✅</div>
+                  <p><strong>You've completed today's challenge!</strong></p>
+                  <p className="dc-done-sub">Come back tomorrow for a new scenario.</p>
+                  {streak > 0 && <p className="dc-done-streak">🔥 {streak}-day streak — keep it going!</p>}
+                </div>
+              ) : (
+                <>
+                  <p className="dc-question">{todaysChallenge.question}</p>
+                  <div className="dc-options">
+                    {todaysChallenge.options.map((opt, i) => {
+                      let cls = 'dc-option';
+                      if (dcSubmitted) {
+                        if (i === todaysChallenge.answer) cls += ' correct';
+                        else if (i === dcAnswer && dcAnswer !== todaysChallenge.answer) cls += ' wrong';
+                      } else if (dcAnswer === i) {
+                        cls += ' selected';
+                      }
+                      return (
+                        <button
+                          key={i}
+                          className={cls}
+                          onClick={() => !dcSubmitted && setDcAnswer(i)}
+                          disabled={dcSubmitted}
+                        >
+                          <span className="dc-option-letter">{String.fromCharCode(65 + i)}</span>
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {dcSubmitted ? (
+                    <div className="dc-explanation">
+                      <span className="dc-result-icon">{dcAnswer === todaysChallenge.answer ? '🎉 Correct!' : '❌ Not quite'}</span>
+                      <p>{todaysChallenge.explanation}</p>
+                      {!dailyDone && <span className="dc-xp-earned">+50 XP earned</span>}
+                    </div>
+                  ) : (
+                    <button className="btn-primary dc-submit" disabled={dcAnswer === null} onClick={handleDCSubmit}>
+                      Submit Answer
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
           {state.quizResults && (
             <div className="profile-section">
               <h2>Skill Breakdown</h2>
@@ -248,14 +339,34 @@ export default function Profile() {
                   const pct = result?.percentage || 0;
                   const tag = pct >= 80 ? 'Strong' : pct >= 50 ? 'Needs Improvement' : 'Critical';
                   const tagClass = pct >= 80 ? 'skill-tag green' : pct >= 50 ? 'skill-tag amber' : 'skill-tag red';
+                  const recs = skillRecommendations[cat.id];
+                  const recArticles = pct < 80 ? (recs?.articles || []).map(id => pmArticles.find(a => a.id === id)).filter(Boolean) : [];
+                  const recTest = pct < 80 && recs?.testId ? recs.testId : null;
                   return (
-                    <div key={cat.id} className="skill-bar-row">
-                      <span className="skill-name">{cat.label}</span>
-                      <div className="skill-bar-container">
-                        <div className="skill-bar-fill" style={{ width: `${pct}%`, background: cat.color }} />
+                    <div key={cat.id} className="skill-bar-group">
+                      <div className="skill-bar-row">
+                        <span className="skill-name">{cat.label}</span>
+                        <div className="skill-bar-container">
+                          <div className="skill-bar-fill" style={{ width: `${pct}%`, background: cat.color }} />
+                        </div>
+                        <span className="skill-pct" style={{ color: cat.color }}>{pct}%</span>
+                        <span className={tagClass}>{tag}</span>
                       </div>
-                      <span className="skill-pct" style={{ color: cat.color }}>{pct}%</span>
-                      <span className={tagClass}>{tag}</span>
+                      {(recArticles.length > 0 || recTest) && (
+                        <div className="skill-recs">
+                          <span className="skill-recs-label">Recommended:</span>
+                          {recArticles.map(article => (
+                            <a key={article.id} href={article.url} target="_blank" rel="noopener noreferrer" className="skill-rec-pill article-pill">
+                              📄 {article.title}
+                            </a>
+                          ))}
+                          {recTest && (
+                            <button className="skill-rec-pill test-pill" onClick={() => navigate('/labs')}>
+                              🧪 Practice Test
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
