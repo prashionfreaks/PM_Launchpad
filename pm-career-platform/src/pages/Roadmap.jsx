@@ -433,6 +433,12 @@ export default function Roadmap() {
 
               {expanded && unlocked && (
                 <div className="milestone-content">
+                  {milestone.content && milestone.content.length > 0 && (
+                    <button className="btn-study-material" onClick={() => setStudyMilestone(milestone)}>
+                      <BookMarked size={18} /> Study Material — {milestone.content.length} sections
+                    </button>
+                  )}
+
                   <h4>📚 Recommended Courses</h4>
                   <div className="courses-list">
                     {milestone.courses.map((course, ci) => (
@@ -453,12 +459,6 @@ export default function Roadmap() {
                       </a>
                     ))}
                   </div>
-
-                  {milestone.content && milestone.content.length > 0 && (
-                    <button className="btn-study-material" onClick={() => setStudyMilestone(milestone)}>
-                      <BookMarked size={18} /> Study Material — {milestone.content.length} sections
-                    </button>
-                  )}
 
                   {!passed && (
                     <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(milestone)}>
