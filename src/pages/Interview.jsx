@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { pmRoles } from '../data/quizQuestions';
-import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, VideoOff, SkipForward, RotateCcw } from 'lucide-react';
+import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, VideoOff, SkipForward, RotateCcw, X } from 'lucide-react';
 
 const interviewQuestions = {
   product_manager: [
@@ -614,6 +614,9 @@ export default function Interview() {
         {showCameraPrompt && (
           <div className="camera-prompt-overlay">
             <div className="camera-prompt-modal">
+              <button className="camera-prompt-close" onClick={() => setShowCameraPrompt(false)}>
+                <X size={18} />
+              </button>
               <div className="camera-prompt-icon">
                 <Video size={36} color="#6366f1" />
               </div>

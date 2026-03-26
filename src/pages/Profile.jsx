@@ -147,6 +147,13 @@ export default function Profile() {
   const handleQuizSubmit = () => {
     const results = calculateResults();
     dispatch({ type: 'SET_QUIZ_RESULTS', payload: results });
+    // Award 500 XP for completing the evaluation — only on first submission
+    if (!state.roadmapProgress?.['evaluation-complete']?.passed) {
+      dispatch({
+        type: 'UPDATE_ROADMAP_PROGRESS',
+        payload: { 'evaluation-complete': { passed: true, xpReward: 500 } },
+      });
+    }
     setQuizSubmitted(true);
   };
 
@@ -356,7 +363,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <h4>Complete Roadmap</h4>
-                  <p>{completedMilestones}/{milestones.length || '?'} milestones done</p>
+                  <p>{state.selectedPath ? `${completedMilestones}/${milestones.length} milestones done` : 'Select a path to begin'}</p>
                 </div>
                 <ArrowRight size={18} />
               </div>

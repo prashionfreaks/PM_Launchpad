@@ -1,8 +1,10 @@
 import { useApp } from '../context/AppContext';
+import { supabase } from '../lib/supabase';
 import { pmArticles } from '../data/labsData';
 import { Trophy, BookOpen, TrendingUp, Medal, Clock, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-const MOCK_USERS = [
+const FALLBACK_USERS = [
   { name: 'Aryan Mehta',      role: 'Software Engineer → PM',  xp: 4250, avatar: 'A' },
   { name: 'Sneha Iyer',       role: 'Data Analyst → PM',       xp: 3800, avatar: 'S' },
   { name: 'Rohan Kapoor',     role: 'Designer → PM',           xp: 3400, avatar: 'R' },
@@ -19,6 +21,13 @@ const MOCK_USERS = [
   { name: 'Riya Choudhary',   role: 'Student → PM',            xp: 210,  avatar: 'R' },
   { name: 'Aman Tiwari',      role: 'Fresher → PM',            xp: 80,   avatar: 'A' },
 ];
+
+const calcXP = (roadmapProgress) => {
+  if (!roadmapProgress || typeof roadmapProgress !== 'object') return 0;
+  return Object.values(roadmapProgress).reduce(
+    (sum, m) => sum + (m?.passed ? (m?.xpReward || 0) : 0), 0
+  );
+};
 
 // Simulated community read counts per article
 const ARTICLE_READ_COUNTS = {
@@ -47,6 +56,28 @@ const rankMedal = (rank) => {
 
 export default function Community() {
   const { state } = useApp();
+  const [leaderboardUsers, setLeaderboardUsers] = useState(null);
+  const [loadingLB, setLoadingLB] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('users')
+      .select('name, current_role, roadmap_progress')
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) {
+          setLeaderboardUsers(null);
+        } else {
+          const mapped = data.map(u => ({
+            name: u.name || 'Anonymous',
+            role: u.current_role ? `${u.current_role} → PM` : 'PM Aspirant',
+            xp: calcXP(u.roadmap_progress),
+            avatar: (u.name?.[0] || 'U').toUpperCase(),
+          }));
+          setLeaderboardUsers(mapped);
+        }
+      })
+      .finally(() => setLoadingLB(false));
+  }, []);
 
   // Calculate current user XP
   const totalXP = Object.values(state.roadmapProgress || {}).reduce(
@@ -57,10 +88,16 @@ export default function Community() {
     ? { name: state.user.name, role: state.user.currentRole ? `${state.user.currentRole} → PM` : 'PM Aspirant', xp: totalXP, avatar: state.user.name?.[0]?.toUpperCase() || 'U', isCurrentUser: true }
     : null;
 
-  // Merge current user into leaderboard and sort
-  const allUsers = currentUser
-    ? [...MOCK_USERS, currentUser].sort((a, b) => b.xp - a.xp)
-    : [...MOCK_USERS].sort((a, b) => b.xp - a.xp);
+  // Use real data if available, otherwise fall back to mock
+  const baseUsers = leaderboardUsers ?? FALLBACK_USERS;
+
+  // Merge current user, deduplicate by name, sort by XP
+  const allUsers = (() => {
+    const merged = currentUser
+      ? [...baseUsers.filter(u => u.name !== currentUser.name), currentUser]
+      : baseUsers;
+    return merged.sort((a, b) => b.xp - a.xp);
+  })();
 
   const currentUserRank = currentUser
     ? allUsers.findIndex(u => u.isCurrentUser) + 1
@@ -86,6 +123,12 @@ export default function Community() {
             <div className="community-card-header">
               <Trophy size={20} color="#f59e0b" />
               <h2>XP Leaderboard</h2>
+              {loadingLB
+                ? <span className="lb-loading-badge">Loading…</span>
+                : leaderboardUsers
+                  ? <span className="lb-live-badge">Live</span>
+                  : <span className="lb-demo-badge">Demo data</span>
+              }
               {currentUserRank && (
                 <span className="your-rank-badge">Your rank: #{currentUserRank}</span>
               )}

@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { pmArticles, caseStudies, mockTests, brandingStrategies, companyQuestionBank } from '../data/labsData';
 import {
   BookOpen, FlaskConical, ClipboardCheck, Megaphone, Building2,
-  ExternalLink, Clock, ChevronDown, ChevronUp, CheckCircle,
+  ExternalLink, Clock, ChevronDown, ChevronUp, CheckCircle, XCircle,
   Star, Lightbulb, Tag, BarChart3, MessageSquare, PenTool, Brain, Users
 } from 'lucide-react';
 
@@ -104,14 +104,90 @@ export default function Labs() {
 
   if (mtSubmitted) {
     const result = labsProgress[`test-${mockTestMode.id}`];
+    const score = result?.score ?? 0;
+    const passed = score >= 70;
+    const correct = mockTestMode.testQuestions.reduce((n, q, i) => n + (mtAnswers[i] === q.answer ? 1 : 0), 0);
+    const total = mockTestMode.testQuestions.length;
+    const incorrect = mockTestMode.testQuestions
+      .map((q, i) => ({ ...q, index: i, userAnswer: mtAnswers[i] }))
+      .filter(q => q.userAnswer !== q.answer);
+
+    const handleTryAgain = () => {
+      setMtAnswers({});
+      setMtSubmitted(false);
+    };
+
     return (
-      <div className="page-container center-content">
-        <div className="quiz-result-card passed">
-          <CheckCircle size={60} color="#10b981" />
-          <h2>Test Complete!</h2>
-          <p>Your score: <strong>{result?.score}%</strong></p>
-          <button className="btn-primary" onClick={() => { setMockTestMode(null); setMtSubmitted(false); setMtAnswers({}); }}>
+      <div className="page-container">
+        {/* Score summary */}
+        <div className={`mt-result-header ${passed ? 'passed' : 'failed'}`}>
+          <div className="mt-result-icon">
+            {passed ? <CheckCircle size={40} /> : <XCircle size={40} />}
+          </div>
+          <div className="mt-result-info">
+            <h2>{passed ? 'Test Passed!' : 'Test Complete'}</h2>
+            <p className="mt-result-score">
+              <strong>{score}%</strong> &mdash; {correct}/{total} correct
+            </p>
+            <p className="mt-result-sub">
+              {passed ? 'Great work! Review any incorrect answers below.' : `You need 70% to pass. Review the answers below and try again.`}
+            </p>
+          </div>
+          <div className="mt-result-actions">
+            <button className="btn-secondary" onClick={() => { setMockTestMode(null); setMtSubmitted(false); setMtAnswers({}); }}>
+              Back to Labs
+            </button>
+            <button className="btn-primary" onClick={handleTryAgain}>
+              Try Again
+            </button>
+          </div>
+        </div>
+
+        {/* Answer review */}
+        <h3 className="mt-review-heading">
+          {incorrect.length === 0 ? '🎉 Perfect score — all answers correct!' : `Review — ${incorrect.length} incorrect answer${incorrect.length > 1 ? 's' : ''}`}
+        </h3>
+
+        <div className="mt-review-list">
+          {mockTestMode.testQuestions.map((q, i) => {
+            const userAns = mtAnswers[i];
+            const isCorrect = userAns === q.answer;
+            return (
+              <div key={i} className={`mt-review-card ${isCorrect ? 'correct' : 'incorrect'}`}>
+                <div className="mt-review-q">
+                  <span className={`mt-review-badge ${isCorrect ? 'badge-correct' : 'badge-wrong'}`}>
+                    {isCorrect ? '✓' : '✗'}
+                  </span>
+                  <span>Q{i + 1}. {q.q}</span>
+                </div>
+                <div className="mt-review-answers">
+                  {q.options.map((opt, j) => {
+                    const isUserPick = userAns === j;
+                    const isRight = q.answer === j;
+                    let cls = 'mt-ans';
+                    if (isRight) cls += ' mt-ans-correct';
+                    else if (isUserPick && !isRight) cls += ' mt-ans-wrong';
+                    return (
+                      <div key={j} className={cls}>
+                        <span className="mt-ans-letter">{String.fromCharCode(65 + j)}</span>
+                        <span>{opt}</span>
+                        {isRight && <span className="mt-ans-tag correct-tag">Correct</span>}
+                        {isUserPick && !isRight && <span className="mt-ans-tag wrong-tag">Your answer</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-review-footer">
+          <button className="btn-secondary" onClick={() => { setMockTestMode(null); setMtSubmitted(false); setMtAnswers({}); }}>
             Back to Labs
+          </button>
+          <button className="btn-primary" onClick={handleTryAgain}>
+            Try Again
           </button>
         </div>
       </div>

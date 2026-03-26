@@ -70,20 +70,24 @@ export default function Layout() {
 
         {state.user && (
           <div className="user-badge">
-            <div className="avatar">{state.user.name?.[0]?.toUpperCase() || 'U'}</div>
-            <div className="user-info">
-              <span className="user-name">{state.user.name}</span>
-              <span className="user-level" style={{ color: levelInfo.color }}>
-                Lv.{levelInfo.level} {levelInfo.title}
-              </span>
+            <div className="user-badge-top">
+              <div className="avatar">{state.user.name?.[0]?.toUpperCase() || 'U'}</div>
+              <div className="user-info">
+                <span className="user-name">{state.user.name}</span>
+                <span className="user-level" style={{ color: levelInfo.color }}>
+                  Lv.{levelInfo.level} · {levelInfo.title}
+                </span>
+              </div>
+              {(state.dailyChallenge?.streak > 0) && (
+                <span className="sidebar-streak">🔥{state.dailyChallenge.streak}</span>
+              )}
             </div>
-            <div className="xp-bar">
-              <div className="xp-fill" style={{ width: `${Math.min(100, (totalXP / 4500) * 100)}%` }} />
+            <div className="user-badge-xp">
+              <div className="xp-bar">
+                <div className="xp-fill" style={{ width: `${Math.min(100, (totalXP / 4500) * 100)}%` }} />
+              </div>
+              <span className="xp-text">{totalXP} XP</span>
             </div>
-            <span className="xp-text">{totalXP} XP</span>
-            {(state.dailyChallenge?.streak > 0) && (
-              <span className="sidebar-streak">🔥 {state.dailyChallenge.streak}</span>
-            )}
           </div>
         )}
 
