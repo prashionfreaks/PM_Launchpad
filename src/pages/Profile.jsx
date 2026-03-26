@@ -64,6 +64,7 @@ export default function Profile() {
   const streak = state.dailyChallenge?.streak || 0;
   const [dcAnswer, setDcAnswer] = useState(null);
   const [dcSubmitted, setDcSubmitted] = useState(false);
+  const [showDCModal, setShowDCModal] = useState(!dailyDone);
 
   const handleDCSubmit = () => {
     if (dcAnswer === null) return;
@@ -76,7 +77,7 @@ export default function Profile() {
     business:     { articles: ['art-2', 'art-3'], testId: 'mt-3' },
     technical:    { articles: [],                 testId: 'mt-2' },
     design:       { articles: ['art-1'],           testId: 'mt-9' },
-    stakeholder:  { articles: ['art-6'],           testId: null  },
+    stakeholder:  { articles: ['art-6', 'art-7'],   testId: 'mt-10' },
     agile:        { articles: ['art-3'],           testId: 'mt-1' },
     analytics:    { articles: ['art-4'],           testId: 'mt-1' },
     strategy:     { articles: ['art-2', 'art-5'], testId: 'mt-3' },
@@ -267,66 +268,16 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* ── Daily Challenge ── */}
+          {/* ── Daily Challenge trigger ── */}
           <div className="profile-section">
-            <div className="dc-card">
-              <div className="dc-header">
-                <div className="dc-title-row">
-                  <span className="dc-badge">⚡ Daily Challenge</span>
-                  {streak > 0 && (
-                    <span className="dc-streak">🔥 {streak}-day streak</span>
-                  )}
-                </div>
-                {!dailyDone && !dcSubmitted && (
-                  <p className="dc-subtitle">Answer today's PM scenario to earn +50 XP and keep your streak alive.</p>
-                )}
+            <div className="dc-card dc-trigger-card" onClick={() => setShowDCModal(true)}>
+              <div className="dc-title-row" style={{marginBottom: 0}}>
+                <span className="dc-badge">⚡ Daily Challenge</span>
+                {streak > 0 && <span className="dc-streak">🔥 {streak}-day streak</span>}
+                <span style={{marginLeft: 'auto', fontSize: 13, color: 'var(--text-light)'}}>
+                  {dailyDone || dcSubmitted ? '✅ Done today' : 'Tap to answer →'}
+                </span>
               </div>
-
-              {dailyDone && !dcSubmitted ? (
-                <div className="dc-done-state">
-                  <div className="dc-done-icon">✅</div>
-                  <p><strong>You've completed today's challenge!</strong></p>
-                  <p className="dc-done-sub">Come back tomorrow for a new scenario.</p>
-                  {streak > 0 && <p className="dc-done-streak">🔥 {streak}-day streak — keep it going!</p>}
-                </div>
-              ) : (
-                <>
-                  <p className="dc-question">{todaysChallenge.question}</p>
-                  <div className="dc-options">
-                    {todaysChallenge.options.map((opt, i) => {
-                      let cls = 'dc-option';
-                      if (dcSubmitted) {
-                        if (i === todaysChallenge.answer) cls += ' correct';
-                        else if (i === dcAnswer && dcAnswer !== todaysChallenge.answer) cls += ' wrong';
-                      } else if (dcAnswer === i) {
-                        cls += ' selected';
-                      }
-                      return (
-                        <button
-                          key={i}
-                          className={cls}
-                          onClick={() => !dcSubmitted && setDcAnswer(i)}
-                          disabled={dcSubmitted}
-                        >
-                          <span className="dc-option-letter">{String.fromCharCode(65 + i)}</span>
-                          {opt}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {dcSubmitted ? (
-                    <div className="dc-explanation">
-                      <span className="dc-result-icon">{dcAnswer === todaysChallenge.answer ? '🎉 Correct!' : '❌ Not quite'}</span>
-                      <p>{todaysChallenge.explanation}</p>
-                      {!dailyDone && <span className="dc-xp-earned">+50 XP earned</span>}
-                    </div>
-                  ) : (
-                    <button className="btn-primary dc-submit" disabled={dcAnswer === null} onClick={handleDCSubmit}>
-                      Submit Answer
-                    </button>
-                  )}
-                </>
-              )}
             </div>
           </div>
 
@@ -343,26 +294,26 @@ export default function Profile() {
                   const recArticles = pct < 80 ? (recs?.articles || []).map(id => pmArticles.find(a => a.id === id)).filter(Boolean) : [];
                   const recTest = pct < 80 && recs?.testId ? recs.testId : null;
                   return (
-                    <div key={cat.id} className="skill-bar-group">
-                      <div className="skill-bar-row">
+                    <div key={cat.id} className="skill-bar-item" style={{ borderLeftColor: cat.color }}>
+                      <div className="skill-bar-top">
                         <span className="skill-name">{cat.label}</span>
-                        <div className="skill-bar-container">
+                        <div className="skill-bar-track">
                           <div className="skill-bar-fill" style={{ width: `${pct}%`, background: cat.color }} />
                         </div>
                         <span className="skill-pct" style={{ color: cat.color }}>{pct}%</span>
                         <span className={tagClass}>{tag}</span>
                       </div>
-                      {(recArticles.length > 0 || recTest) && (
-                        <div className="skill-recs">
-                          <span className="skill-recs-label">Recommended:</span>
+                      {pct < 80 && (recArticles.length > 0 || recTest) && (
+                        <div className="skill-bar-bottom skill-recs">
+                          <span className="skill-recs-label">Revise:</span>
                           {recArticles.map(article => (
                             <a key={article.id} href={article.url} target="_blank" rel="noopener noreferrer" className="skill-rec-pill article-pill">
-                              📄 {article.title}
+                              {article.title}
                             </a>
                           ))}
                           {recTest && (
                             <button className="skill-rec-pill test-pill" onClick={() => navigate('/labs')}>
-                              🧪 Practice Test
+                              Practice Test
                             </button>
                           )}
                         </div>
@@ -725,6 +676,83 @@ export default function Profile() {
             </div>
           )}
         </>
+      )}
+
+      {/* ── Daily Challenge Modal ── */}
+      {showDCModal && (
+        <div
+          className="dc-modal-overlay"
+          onClick={e => { if (e.target === e.currentTarget && (dcSubmitted || dailyDone)) setShowDCModal(false); }}
+        >
+          <div className="dc-modal">
+            <div className="dc-modal-header">
+              <div className="dc-title-row" style={{marginBottom: 0}}>
+                <span className="dc-badge">⚡ Daily Challenge</span>
+                {streak > 0 && <span className="dc-streak">🔥 {streak}-day streak</span>}
+              </div>
+              <button
+                className="dc-modal-close"
+                onClick={() => setShowDCModal(false)}
+                disabled={!dcSubmitted && !dailyDone}
+                title={!dcSubmitted && !dailyDone ? 'Answer the challenge to close' : 'Close'}
+              >✕</button>
+            </div>
+
+            {dailyDone && !dcSubmitted ? (
+              <div className="dc-done-state">
+                <div className="dc-done-icon">✅</div>
+                <p><strong>You've completed today's challenge!</strong></p>
+                <p className="dc-done-sub">Come back tomorrow for a new scenario.</p>
+                {streak > 0 && <p className="dc-done-streak">🔥 {streak}-day streak — keep it going!</p>}
+              </div>
+            ) : (
+              <>
+                {!dcSubmitted && (
+                  <p className="dc-subtitle" style={{marginBottom: 16}}>Answer today's PM scenario to earn +50 XP and keep your streak alive.</p>
+                )}
+                <p className="dc-question">{todaysChallenge.question}</p>
+                <div className="dc-options">
+                  {todaysChallenge.options.map((opt, i) => {
+                    let cls = 'dc-option';
+                    if (dcSubmitted) {
+                      if (i === todaysChallenge.answer) cls += ' correct';
+                      else if (i === dcAnswer && dcAnswer !== todaysChallenge.answer) cls += ' wrong';
+                    } else if (dcAnswer === i) {
+                      cls += ' selected';
+                    }
+                    return (
+                      <button
+                        key={i}
+                        className={cls}
+                        onClick={() => !dcSubmitted && setDcAnswer(i)}
+                        disabled={dcSubmitted}
+                      >
+                        <span className="dc-option-letter">{String.fromCharCode(65 + i)}</span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                {dcSubmitted ? (
+                  <>
+                    <div className="dc-explanation">
+                      <span className="dc-result-icon">{dcAnswer === todaysChallenge.answer ? '🎉 Correct!' : '❌ Not quite'}</span>
+                      <p>{todaysChallenge.explanation}</p>
+                      {!dailyDone && <span className="dc-xp-earned">+50 XP earned</span>}
+                    </div>
+                    <button className="btn-primary dc-submit" style={{marginTop: 16}} onClick={() => setShowDCModal(false)}>
+                      Close
+                    </button>
+                  </>
+                ) : (
+                  <button className="btn-primary dc-submit" disabled={dcAnswer === null} onClick={handleDCSubmit}>
+                    Submit Answer
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

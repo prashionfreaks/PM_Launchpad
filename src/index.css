@@ -3044,30 +3044,48 @@ body {
 }
 
 .skill-bars {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.skill-bar-row {
+.skill-bar-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-bar-top {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 0;
+}
+
+.skill-bar-bottom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 2px;
 }
 
 .skill-name {
-  width: 140px;
+  width: 155px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-heading);
   flex-shrink: 0;
 }
 
-.skill-bar-container {
-  flex: 1;
-  height: 8px;
+.skill-bar-track {
+  width: 130px;
+  flex-shrink: 0;
+  height: 7px;
   background: var(--border);
   border-radius: 8px;
   overflow: hidden;
@@ -3076,24 +3094,22 @@ body {
 .skill-bar-fill {
   height: 100%;
   border-radius: 8px;
-  transition: width 0.5s;
+  transition: width 0.6s ease;
 }
 
 .skill-pct {
   width: 36px;
-  text-align: right;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-heading);
+  flex-shrink: 0;
 }
 
 .skill-tag {
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 20px;
   white-space: nowrap;
-  margin-left: 8px;
 }
 .skill-tag.green {
   background: rgba(16, 185, 129, 0.12);
@@ -5787,6 +5803,75 @@ body {
 
 .dc-done-streak { color: #f59e0b !important; font-weight: 700 !important; }
 
+/* ─── Daily Challenge Modal ────────────────────────────────────────────── */
+.dc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.dc-modal {
+  background: var(--bg-card);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.dc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.dc-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dc-modal-close:not(:disabled):hover {
+  background: rgba(239,68,68,0.08);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.dc-modal-close:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dc-trigger-card {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dc-trigger-card:hover {
+  border-color: rgba(99,102,241,0.5);
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.09));
+}
+
 /* Sidebar streak badge */
 .sidebar-streak {
   font-size: 12px;
@@ -5800,53 +5885,62 @@ body {
 }
 
 /* ─── Skill Gap Recommendations ──────────────────────────────────────── */
-.skill-bar-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .skill-recs {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  padding-left: 4px;
 }
 
 .skill-recs-label {
   font-size: 11px;
   color: var(--text-light);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   flex-shrink: 0;
+  margin-right: 2px;
 }
 
 .skill-rec-pill {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 11px;
+  border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
-  transition: opacity 0.15s;
+  transition: all 0.15s;
   white-space: nowrap;
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.skill-rec-pill:hover { opacity: 0.8; }
+.skill-rec-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
 
 .article-pill {
-  background: rgba(99,102,241,0.1);
+  background: rgba(99,102,241,0.08);
   color: #6366f1;
+  border: 1px solid rgba(99,102,241,0.25);
 }
 
+.article-pill::before { content: '↗'; font-size: 11px; }
+
 .test-pill {
-  background: rgba(16,185,129,0.1);
+  background: rgba(16,185,129,0.08);
   color: #10b981;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.test-pill::before { content: '✎'; font-size: 11px; }
+
+.skill-did-it {
+  font-size: 12px;
+  font-weight: 700;
+  color: #10b981;
+  font-style: italic;
+  letter-spacing: 0.2px;
 }

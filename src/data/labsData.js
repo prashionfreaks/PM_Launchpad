@@ -53,6 +53,15 @@ export const pmArticles = [
     readTime: '8 min',
     category: 'Leadership',
   },
+  {
+    id: 'art-7',
+    title: 'Influence Without Authority',
+    author: 'Lenny Rachitsky',
+    description: 'How the best PMs align stakeholders, navigate conflict, and build trust across the org.',
+    url: 'https://www.lennysnewsletter.com/p/influence-without-authority',
+    readTime: '11 min',
+    category: 'Stakeholder Management',
+  },
 ];
 
 export const caseStudies = [
@@ -272,6 +281,23 @@ export const mockTests = [
       { q: 'What does "desirability, feasibility, and viability" represent in Design Thinking?', type: 'multiple-choice', options: ['The three phases of product development', 'The three lenses of innovation — a solution must be desired by users, technically feasible to build, and economically viable to sustain', 'The three layers of a design system', 'The three types of product managers'], answer: 1 },
       { q: 'In Design Thinking, why is failure during the "Test" stage considered valuable?', type: 'multiple-choice', options: ['It gives designers more time to iterate', 'Failing early with a prototype is fast and cheap — it reveals flawed assumptions before significant resources are invested in building the wrong solution', 'It satisfies agile sprint retrospective requirements', 'It proves that the team tested rigorously'], answer: 1 },
       { q: 'What is the difference between Design Thinking and Agile?', type: 'multiple-choice', options: ['Design Thinking is only for designers; Agile is only for engineers', 'Design Thinking is a problem-framing and solution exploration methodology focused on user empathy; Agile is a delivery framework for iterative development — they are complementary', 'Design Thinking replaces Agile in modern product teams', 'They are identical frameworks with different names'], answer: 1 },
+    ],
+  },
+  {
+    id: 'mt-10',
+    title: 'Stakeholder Management',
+    questions: 8,
+    timeLimit: '15 minutes',
+    category: 'Leadership',
+    testQuestions: [
+      { q: 'A PM has no direct authority over engineers. What is the most effective way to get their buy-in on a new feature?', type: 'multiple-choice', options: ['Escalate to the VP of Engineering immediately', 'Involve them early, explain the user problem and business impact, and invite their input on the solution', 'Send a detailed requirements doc and expect compliance', 'Promise them it will be easy to build'], answer: 1 },
+      { q: 'What is a RACI matrix used for in stakeholder management?', type: 'multiple-choice', options: ['Tracking sprint velocity', 'Clarifying who is Responsible, Accountable, Consulted, and Informed for each decision or task', 'Scoring feature priority', 'Mapping customer journey touchpoints'], answer: 1 },
+      { q: 'A senior executive keeps changing the product direction mid-sprint. What is the best PM response?', type: 'multiple-choice', options: ['Ignore the requests and stick to the roadmap', 'Schedule a regular alignment meeting and present a clear cost-of-change framework to make trade-offs visible', 'Immediately incorporate all changes to avoid conflict', 'Ask the engineering lead to push back directly'], answer: 1 },
+      { q: 'What does "managing up" mean for a PM?', type: 'multiple-choice', options: ['Reporting bugs upward to leadership', 'Proactively communicating progress, risks, and trade-offs to leadership in a way that builds confidence and enables good decisions', 'Requesting more headcount from your manager', 'Escalating every disagreement to the C-suite'], answer: 1 },
+      { q: 'A key stakeholder is consistently missing review meetings and delaying feedback. What should the PM do first?', type: 'multiple-choice', options: ['Remove them from the process', 'Have a 1:1 to understand their constraints, then adapt the feedback format (async doc, shorter sync) to lower the barrier to participation', 'Send a formal escalation email', 'Proceed without their input and document it'], answer: 1 },
+      { q: 'What is the best way to handle conflicting priorities from two equally senior stakeholders?', type: 'multiple-choice', options: ['Implement whichever was requested first', 'Facilitate a joint conversation with both stakeholders, surface the trade-offs with data, and align on company-level goals to drive the decision', 'Let engineering decide', 'Split effort 50/50 between both requests'], answer: 1 },
+      { q: 'Which communication approach is most effective when presenting a roadmap to non-technical stakeholders?', type: 'multiple-choice', options: ['Share the full technical spec and Jira board', 'Frame the roadmap around customer outcomes and business impact, not features or tech details', 'Use engineering jargon to appear credible', 'Only share the next two weeks of work'], answer: 1 },
+      { q: 'What is "stakeholder mapping" and when should a PM do it?', type: 'multiple-choice', options: ['A diagram of the org chart — done once at onboarding', 'Identifying all parties with interest or influence over the product, assessing their power and alignment, and planning engagement — done at project kickoff and revisited regularly', 'A record of stakeholder complaints', 'A tool for measuring stakeholder satisfaction scores'], answer: 1 },
     ],
   },
 ];
