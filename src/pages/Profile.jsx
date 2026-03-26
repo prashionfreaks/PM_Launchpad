@@ -64,7 +64,7 @@ export default function Profile() {
   const streak = state.dailyChallenge?.streak || 0;
   const [dcAnswer, setDcAnswer] = useState(null);
   const [dcSubmitted, setDcSubmitted] = useState(false);
-  const [showDCModal, setShowDCModal] = useState(!dailyDone);
+  const [showDCModal, setShowDCModal] = useState(!dailyDone && !!state.quizResults);
 
   const handleDCSubmit = () => {
     if (dcAnswer === null) return;
@@ -268,8 +268,8 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* ── Daily Challenge trigger ── */}
-          <div className="profile-section">
+          {/* ── Daily Challenge trigger (only after evaluation) ── */}
+          {state.quizResults && <div className="profile-section">
             <div className="dc-card dc-trigger-card" onClick={() => setShowDCModal(true)}>
               <div className="dc-title-row" style={{marginBottom: 0}}>
                 <span className="dc-badge">⚡ Daily Challenge</span>
@@ -279,7 +279,7 @@ export default function Profile() {
                 </span>
               </div>
             </div>
-          </div>
+          </div>}
 
           {state.quizResults && (
             <div className="profile-section">
@@ -678,8 +678,8 @@ export default function Profile() {
         </>
       )}
 
-      {/* ── Daily Challenge Modal ── */}
-      {showDCModal && (
+      {/* ── Daily Challenge Modal (only after evaluation) ── */}
+      {showDCModal && state.quizResults && (
         <div
           className="dc-modal-overlay"
           onClick={e => { if (e.target === e.currentTarget && (dcSubmitted || dailyDone)) setShowDCModal(false); }}
