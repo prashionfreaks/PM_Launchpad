@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { pmArticles, caseStudies, mockTests, brandingStrategies, companyQuestionBank } from '../data/labsData';
+import { pmArticles, caseStudies, mockTests, brandingStrategies, companyQuestionBank, pmPodcasts } from '../data/labsData';
 import {
   BookOpen, FlaskConical, ClipboardCheck, Megaphone, Building2,
   ExternalLink, Clock, ChevronDown, ChevronUp, CheckCircle, XCircle,
-  Star, Lightbulb, Tag, BarChart3, MessageSquare, PenTool, Brain, Users
+  Star, Lightbulb, Tag, BarChart3, MessageSquare, PenTool, Brain, Users, Headphones
 } from 'lucide-react';
 
 const tabs = [
   { id: 'articles', label: 'Articles', icon: BookOpen },
+  { id: 'podcasts', label: 'Podcasts', icon: Headphones },
   { id: 'cases', label: 'Case Studies', icon: FlaskConical },
   { id: 'tests', label: 'Mock Tests', icon: ClipboardCheck },
   { id: 'companies', label: 'Company Prep', icon: Building2 },
@@ -238,6 +239,44 @@ export default function Labs() {
                       onClick={() => markArticleRead(article.id)}
                     >
                       Read <ExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'podcasts' && (
+          <div className="podcasts-grid">
+            {pmPodcasts.map((pod, i) => (
+              <div key={pod.id} className="podcast-card">
+                <div className="podcast-rank">#{i + 1}</div>
+                <div className="podcast-body">
+                  <div className="podcast-top">
+                    <div className="podcast-icon">
+                      <Headphones size={22} color="#6366f1" />
+                    </div>
+                    <div className="podcast-meta">
+                      <span className="podcast-category">{pod.category}</span>
+                      <span className="podcast-freq">{pod.frequency}</span>
+                      <span className="podcast-level">{pod.level}</span>
+                    </div>
+                  </div>
+                  <h3 className="podcast-title">{pod.title}</h3>
+                  <p className="podcast-host">by {pod.host}</p>
+                  <p className="podcast-desc">{pod.description}</p>
+                  <div className="podcast-highlights">
+                    {pod.highlights.map((h, j) => (
+                      <span key={j} className="podcast-highlight-tag">{h}</span>
+                    ))}
+                  </div>
+                  <div className="podcast-actions">
+                    <a href={pod.url} target="_blank" rel="noopener noreferrer" className="btn-small">
+                      Website <ExternalLink size={13} />
+                    </a>
+                    <a href={pod.spotifyUrl} target="_blank" rel="noopener noreferrer" className="btn-small spotify-btn">
+                      Spotify <ExternalLink size={13} />
                     </a>
                   </div>
                 </div>
