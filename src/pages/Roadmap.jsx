@@ -659,39 +659,6 @@ export default function Roadmap() {
               <div className="xp-earned">+{quizResultModal.milestone.xpReward} XP</div>
             )}
 
-            <div className="qrm-review">
-              <p className="qrm-review-heading">Answer Review</p>
-              {quizResultModal.shuffledQuiz.map((q, i) => {
-                const userPick = quizResultModal.quizAnswers[i];
-                const isCorrect = userPick === q.answer;
-                return (
-                  <div key={i} className={`mq-review-card ${isCorrect ? 'mq-card-correct' : 'mq-card-wrong'}`}>
-                    <p className="mq-review-q">
-                      <span className={`mq-review-badge ${isCorrect ? 'mq-badge-correct' : 'mq-badge-wrong'}`}>
-                        {isCorrect ? '✓' : '✗'}
-                      </span>
-                      Q{i + 1}. {q.q}
-                    </p>
-                    <div className="mq-review-opts">
-                      {q.options.map((opt, j) => {
-                        let cls = 'mq-review-opt';
-                        if (j === q.answer) cls += ' mq-opt-correct';
-                        else if (j === userPick) cls += ' mq-opt-wrong';
-                        return (
-                          <div key={j} className={cls}>
-                            <span className="option-letter">{String.fromCharCode(65 + j)}</span>
-                            {opt}
-                            {j === q.answer && <span className="mq-tag correct">Correct</span>}
-                            {j === userPick && j !== q.answer && <span className="mq-tag wrong">Your answer</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
             <div className="qrm-actions">
               {!quizResultModal.passed && (
                 <button className="btn-primary" onClick={() => {
