@@ -64,16 +64,17 @@ export default function Community() {
       .from('users')
       .select('name, current_role, roadmap_progress')
       .then(({ data, error }) => {
-        if (error || !data || data.length === 0) {
-          setLeaderboardUsers(null);
-        } else {
+        if (!error && data && data.length > 0) {
           const mapped = data.map(u => ({
             name: u.name || 'Anonymous',
             role: u.current_role ? `${u.current_role} → PM` : 'PM Aspirant',
             xp: calcXP(u.roadmap_progress),
             avatar: (u.name?.[0] || 'U').toUpperCase(),
+            isReal: true,
           }));
           setLeaderboardUsers(mapped);
+        } else {
+          setLeaderboardUsers(null);
         }
       })
       .finally(() => setLoadingLB(false));
@@ -85,18 +86,23 @@ export default function Community() {
   );
 
   const currentUser = state.user
-    ? { name: state.user.name, role: state.user.currentRole ? `${state.user.currentRole} → PM` : 'PM Aspirant', xp: totalXP, avatar: state.user.name?.[0]?.toUpperCase() || 'U', isCurrentUser: true }
+    ? { name: state.user.name, role: state.user.currentRole ? `${state.user.currentRole} → PM` : 'PM Aspirant', xp: totalXP, avatar: state.user.name?.[0]?.toUpperCase() || 'U', isCurrentUser: true, isReal: true }
     : null;
 
-  // Use real data if available, otherwise fall back to mock
-  const baseUsers = leaderboardUsers ?? FALLBACK_USERS;
-
-  // Merge current user, deduplicate by name, sort by XP
+  // Merge real users over fallback (real users replace fallback by name match),
+  // then add current user, then sort by XP
   const allUsers = (() => {
-    const merged = currentUser
-      ? [...baseUsers.filter(u => u.name !== currentUser.name), currentUser]
-      : baseUsers;
-    return merged.sort((a, b) => b.xp - a.xp);
+    const realUsers = leaderboardUsers ?? [];
+    const realNames = new Set(realUsers.map(u => u.name));
+    // Keep fallback users that don't have a real counterpart
+    const fallbackPool = FALLBACK_USERS.filter(u => !realNames.has(u.name));
+    // Blend: real users + enough fallback to pad the board
+    const blended = [...realUsers, ...fallbackPool];
+    // Add current user (deduplicate by name)
+    const withCurrentUser = currentUser
+      ? [...blended.filter(u => u.name !== currentUser.name), currentUser]
+      : blended;
+    return withCurrentUser.sort((a, b) => b.xp - a.xp);
   })();
 
   const currentUserRank = currentUser
