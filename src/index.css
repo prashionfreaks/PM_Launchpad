@@ -5404,7 +5404,7 @@ body {
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  color: var(--text-heading);
+  color: #0f172a;
 }
 
 .pub-stat-icon {
@@ -5418,7 +5418,7 @@ body {
 .pub-stat-big {
   font-size: 22px;
   font-weight: 800;
-  color: var(--text-heading);
+  color: #0f172a;
 }
 
 .pub-stat-label {
@@ -5444,10 +5444,10 @@ body {
   gap: 10px;
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-heading);
+  color: #0f172a;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .pub-about-text {
@@ -5515,7 +5515,7 @@ body {
 .pub-exp-content h3 {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-heading);
+  color: #0f172a;
   margin-bottom: 2px;
 }
 
@@ -5576,7 +5576,7 @@ body {
 .pub-edu-entry h4, .pub-cert-entry h4 {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-heading);
+  color: #0f172a;
 }
 
 .pub-edu-entry p, .pub-cert-entry p {
@@ -5601,8 +5601,8 @@ body {
   padding: 16px;
 }
 
-.pub-comp-col.green { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.12); }
-.pub-comp-col.amber { background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.12); }
+.pub-comp-col.green { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+.pub-comp-col.amber { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); }
 
 .pub-comp-col h4 {
   display: flex;
@@ -5610,7 +5610,7 @@ body {
   gap: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-heading);
+  color: #0f172a;
   margin-bottom: 10px;
 }
 
