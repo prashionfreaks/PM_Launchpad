@@ -156,9 +156,9 @@ export default function Roadmap() {
   }
 
   if (quizSubmitted) {
-    const score = state.roadmapProgress[quizMode.id]?.quizScore || 0;
-    const passed = score >= 80;
     const correct = shuffledQuiz.filter((q, i) => quizAnswers[i] === q.answer).length;
+    const score = shuffledQuiz.length > 0 ? Math.round((correct / shuffledQuiz.length) * 100) : 0;
+    const passed = score >= 80;
     return (
       <div className="page-container">
         <div className="quiz-result-page">
