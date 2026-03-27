@@ -48,10 +48,10 @@ export default function Labs() {
   const labsProgress = state.labsProgress || {};
 
   const markArticleRead = (id) => {
-    dispatch({
-      type: 'UPDATE_LABS_PROGRESS',
-      payload: { [`article-${id}`]: true },
-    });
+    if (!labsProgress[`article-${id}`]) {
+      dispatch({ type: 'UPDATE_LABS_PROGRESS', payload: { [`article-${id}`]: true } });
+      dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: { [`article-xp-${id}`]: { passed: true, xpReward: 200 } } });
+    }
   };
 
   const handleMockTestSubmit = () => {
@@ -59,10 +59,10 @@ export default function Labs() {
     const correct = test.testQuestions.reduce((count, q, i) => count + (mtAnswers[i] === q.answer ? 1 : 0), 0);
     const score = Math.round((correct / test.testQuestions.length) * 100);
 
-    dispatch({
-      type: 'UPDATE_LABS_PROGRESS',
-      payload: { [`test-${test.id}`]: { score, completed: true } },
-    });
+    dispatch({ type: 'UPDATE_LABS_PROGRESS', payload: { [`test-${test.id}`]: { score, completed: true } } });
+    if (!labsProgress[`test-${test.id}`]?.completed) {
+      dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: { [`test-xp-${test.id}`]: { passed: true, xpReward: 500 } } });
+    }
     setMtSubmitted(true);
   };
 

@@ -27,10 +27,10 @@ export const quizQuestions = [
     category: 'business',
     question: 'A competitor launches a feature that overlaps with your product roadmap. What do you do first?',
     options: [
-      { text: 'Immediately prioritize building a similar feature', score: 1 },
-      { text: 'Analyze the competitor\'s feature impact on your users and market position', score: 4 },
-      { text: 'Ignore it and continue with the current roadmap', score: 2 },
-      { text: 'Call an emergency meeting with stakeholders to discuss', score: 3 },
+      { text: 'Call an emergency all-hands with stakeholders to form a rapid competitive response plan', score: 3 },
+      { text: 'Immediately pivot the roadmap to build a competing feature before they gain traction', score: 1 },
+      { text: 'Analyze the competitor\'s feature impact on your users and market position before deciding on a response', score: 4 },
+      { text: 'Continue with the current roadmap — reacting to every competitor move is a strategic trap', score: 2 },
     ],
   },
   {
@@ -38,10 +38,10 @@ export const quizQuestions = [
     category: 'business',
     question: 'How would you evaluate the market potential of a new product idea?',
     options: [
-      { text: 'Rely on gut feeling and industry trends', score: 1 },
-      { text: 'Conduct TAM/SAM/SOM analysis with customer interviews and competitive research', score: 4 },
-      { text: 'Look at what competitors are doing and follow suit', score: 2 },
-      { text: 'Build an MVP first, then see what happens', score: 3 },
+      { text: 'Conduct TAM/SAM/SOM analysis combined with customer interviews and competitive research', score: 4 },
+      { text: 'Build a lightweight MVP first and use real market feedback to validate the opportunity', score: 3 },
+      { text: 'Research what competitors are doing in the space and model a similar opportunity size', score: 2 },
+      { text: 'Commission an analyst report and use industry trend data to make a directional judgment', score: 1 },
     ],
   },
   {
@@ -49,10 +49,10 @@ export const quizQuestions = [
     category: 'business',
     question: 'Your CEO asks you to justify the ROI of a feature. How do you approach this?',
     options: [
-      { text: 'Estimate development cost vs. projected revenue impact with data', score: 4 },
-      { text: 'Present user feedback as the main justification', score: 2 },
-      { text: 'Agree it\'s important and promise to track metrics post-launch', score: 1 },
-      { text: 'Benchmark against competitor features that drove their growth', score: 3 },
+      { text: 'Benchmark the feature against similar ones from competitors that demonstrably drove their growth', score: 3 },
+      { text: 'Lead with qualitative user feedback and NPS improvement as the primary justification', score: 2 },
+      { text: 'Agree it\'s strategically important and commit to defining success metrics after launch', score: 1 },
+      { text: 'Model development cost against projected revenue impact, retention uplift, or cost savings using supporting data', score: 4 },
     ],
   },
   // Technical Skills
@@ -61,10 +61,10 @@ export const quizQuestions = [
     category: 'technical',
     question: 'An engineer says a feature will take 3 sprints. How do you respond?',
     options: [
-      { text: 'Accept their estimate without question', score: 2 },
-      { text: 'Ask them to break it down and explore if an MVP version can ship sooner', score: 4 },
-      { text: 'Push them to do it in 1 sprint to hit deadlines', score: 1 },
-      { text: 'Suggest cutting scope arbitrarily to make it fit', score: 1 },
+      { text: 'Accept the estimate — engineers understand the codebase and complexity better than anyone', score: 2 },
+      { text: 'Push back firmly and set a hard deadline of 1 sprint to protect the roadmap commitments', score: 1 },
+      { text: 'Ask them to decompose the work and explore whether a smaller, shippable version can deliver value sooner', score: 4 },
+      { text: 'Bring in more engineers to parallelize the work and compress the overall timeline', score: 1 },
     ],
   },
   {
@@ -72,10 +72,10 @@ export const quizQuestions = [
     category: 'technical',
     question: 'What does an API do in the context of product development?',
     options: [
-      { text: 'It\'s a programming language for mobile apps', score: 1 },
-      { text: 'It enables different software systems to communicate and share data', score: 4 },
-      { text: 'It\'s a testing framework for quality assurance', score: 1 },
-      { text: 'It\'s a design tool for creating interfaces', score: 1 },
+      { text: 'A set of design contracts that define how a product\'s interface is structured for developers to implement', score: 1 },
+      { text: 'A protocol that enables different software systems to communicate and exchange data in a defined format', score: 4 },
+      { text: 'A technical specification document that engineering teams use to define the requirements for a new feature', score: 2 },
+      { text: 'A layer in a product\'s architecture that handles user authentication and session management', score: 1 },
     ],
   },
   {
@@ -83,10 +83,10 @@ export const quizQuestions = [
     category: 'technical',
     question: 'Your team wants to migrate from a monolith to microservices. What\'s your role as PM?',
     options: [
-      { text: 'Let engineering decide entirely, it\'s a technical decision', score: 2 },
-      { text: 'Understand the business impact, help prioritize which services to migrate first, and communicate timeline to stakeholders', score: 4 },
-      { text: 'Oppose it because it will slow down feature delivery', score: 1 },
-      { text: 'Approve it immediately to keep engineering happy', score: 1 },
+      { text: 'Understand the business impact, help prioritize which services to migrate first, and align stakeholders on timeline and trade-offs', score: 4 },
+      { text: 'Oppose it — the added operational complexity will slow feature delivery for multiple quarters', score: 1 },
+      { text: 'Defer entirely to engineering since infrastructure architecture is outside a PM\'s domain', score: 2 },
+      { text: 'Approve it immediately to demonstrate trust in engineering\'s technical judgment and maintain morale', score: 1 },
     ],
   },
   // Design Thinking
@@ -95,10 +95,10 @@ export const quizQuestions = [
     category: 'design',
     question: 'Users are dropping off during onboarding. What\'s your first step?',
     options: [
-      { text: 'Redesign the entire onboarding flow immediately', score: 1 },
-      { text: 'Analyze funnel data, conduct user interviews, and identify specific drop-off points', score: 4 },
-      { text: 'Add more tooltips and help text', score: 2 },
-      { text: 'Skip onboarding entirely and let users figure it out', score: 1 },
+      { text: 'Add contextual tooltips and a progress indicator to guide users more clearly through each step', score: 2 },
+      { text: 'Simplify the flow by removing steps — long onboarding is the most common cause of drop-off', score: 1 },
+      { text: 'Run an A/B test between the current onboarding and a stripped-down version to see which converts better', score: 3 },
+      { text: 'Analyze funnel data to pinpoint the exact drop-off steps, then run user interviews to understand the underlying reasons', score: 4 },
     ],
   },
   {
@@ -106,10 +106,10 @@ export const quizQuestions = [
     category: 'design',
     question: 'What is the primary purpose of creating user personas?',
     options: [
-      { text: 'To make presentations look professional', score: 1 },
-      { text: 'To represent different user segments and guide product decisions based on their needs', score: 4 },
-      { text: 'To satisfy stakeholder requirements for documentation', score: 1 },
-      { text: 'To define the engineering team structure', score: 1 },
+      { text: 'To segment users by demographics and tailor marketing messages to each group effectively', score: 2 },
+      { text: 'To represent key user types and their goals, guiding prioritisation and design decisions based on real needs', score: 4 },
+      { text: 'To document edge cases so engineering can build robust error handling for different user types', score: 1 },
+      { text: 'To build stakeholder empathy by giving a human name and face to the abstract target user', score: 3 },
     ],
   },
   {
@@ -117,10 +117,10 @@ export const quizQuestions = [
     category: 'design',
     question: 'A designer presents a beautiful UI but usability testing shows users are confused. What do you do?',
     options: [
-      { text: 'Ship it anyway because it looks great', score: 1 },
-      { text: 'Work with the designer to iterate based on usability findings while maintaining visual quality', score: 4 },
-      { text: 'Scrap the design entirely and start over', score: 2 },
-      { text: 'Add an instruction manual for users', score: 1 },
+      { text: 'Work with the designer to iterate based on usability findings while preserving the visual quality', score: 4 },
+      { text: 'Discard the design entirely and start fresh with usability as the primary constraint', score: 2 },
+      { text: 'Ship it — visual polish drives first impressions and users adapt to new interfaces over time', score: 1 },
+      { text: 'Run a second round of usability testing with a revised prototype before committing to any changes', score: 3 },
     ],
   },
   // Stakeholder Management
@@ -129,10 +129,10 @@ export const quizQuestions = [
     category: 'stakeholder',
     question: 'Two executives want conflicting features prioritized. How do you handle this?',
     options: [
-      { text: 'Do whatever the higher-ranking executive wants', score: 1 },
-      { text: 'Facilitate a data-driven discussion showing impact of each, align on shared goals', score: 4 },
-      { text: 'Try to build both simultaneously', score: 2 },
-      { text: 'Escalate to the CEO to decide', score: 2 },
+      { text: 'Facilitate a data-driven discussion with both executives mapping each request to business impact and shared goals', score: 4 },
+      { text: 'Try to scope down both features so they can ship simultaneously without overloading the team', score: 2 },
+      { text: 'Default to the higher-ranking executive\'s preference to avoid political friction', score: 1 },
+      { text: 'Escalate to the CEO or a steering committee to make the final prioritization call', score: 3 },
     ],
   },
   {
@@ -140,10 +140,10 @@ export const quizQuestions = [
     category: 'stakeholder',
     question: 'An important stakeholder keeps adding scope mid-sprint. How do you manage this?',
     options: [
-      { text: 'Accept all changes to keep them happy', score: 1 },
-      { text: 'Document the impact on timeline, present trade-offs, and agree on a process for change requests', score: 4 },
-      { text: 'Ignore their requests until the sprint is over', score: 1 },
-      { text: 'Tell engineering to just work overtime', score: 1 },
+      { text: 'Accept the changes to maintain the relationship — stakeholder trust matters more than sprint hygiene', score: 1 },
+      { text: 'Log every request in the backlog and commit to prioritizing them in the next sprint planning', score: 3 },
+      { text: 'Remind the stakeholder that scope is frozen mid-sprint and revisit their requests at planning', score: 2 },
+      { text: 'Document the change request\'s impact on scope and timeline, walk through the trade-offs, and agree on a formal change management process', score: 4 },
     ],
   },
   {
@@ -151,10 +151,10 @@ export const quizQuestions = [
     category: 'stakeholder',
     question: 'How do you communicate a product delay to stakeholders?',
     options: [
-      { text: 'Wait until someone asks about the timeline', score: 1 },
-      { text: 'Proactively share the delay, root cause, revised timeline, and mitigation plan', score: 4 },
-      { text: 'Blame the engineering team for underestimating', score: 1 },
-      { text: 'Quietly reduce scope to hit the original date', score: 2 },
+      { text: 'Send a brief status update summarizing the new expected delivery date as soon as it\'s confirmed', score: 3 },
+      { text: 'Quietly reduce scope to hit the original date — stakeholders care about delivery, not process', score: 2 },
+      { text: 'Proactively communicate the delay, its root cause, a revised timeline, and concrete mitigation steps', score: 4 },
+      { text: 'Wait until a stakeholder raises the concern to avoid creating unnecessary alarm prematurely', score: 1 },
     ],
   },
   // Agile & Execution
@@ -163,10 +163,10 @@ export const quizQuestions = [
     category: 'agile',
     question: 'What is the main purpose of a sprint retrospective?',
     options: [
-      { text: 'To assign blame for what went wrong', score: 1 },
-      { text: 'To reflect on the process and identify improvements for the next sprint', score: 4 },
-      { text: 'To plan the next sprint\'s backlog', score: 2 },
-      { text: 'To demo completed work to stakeholders', score: 1 },
+      { text: 'To review what was completed in the sprint and update stakeholders on delivery progress', score: 2 },
+      { text: 'To reflect on team processes, surface blockers, and identify concrete improvements for the next sprint', score: 4 },
+      { text: 'To groom the backlog and ensure the next sprint\'s priorities are clearly defined and estimated', score: 3 },
+      { text: 'To evaluate individual team members\' contributions and address any performance gaps openly', score: 1 },
     ],
   },
   {
@@ -174,10 +174,10 @@ export const quizQuestions = [
     category: 'agile',
     question: 'Your sprint velocity has dropped 30% over 3 sprints. What do you investigate?',
     options: [
-      { text: 'Nothing, velocity fluctuates naturally', score: 1 },
-      { text: 'Check for increased tech debt, team changes, unclear requirements, or external blockers', score: 4 },
-      { text: 'Push the team to work harder', score: 1 },
-      { text: 'Add more developers to the team', score: 2 },
+      { text: 'Investigate potential causes: increased tech debt, team composition changes, unclear requirements, or external blockers', score: 4 },
+      { text: 'Add more developers to the team to increase output capacity and restore velocity', score: 2 },
+      { text: 'Review recent retrospective notes to surface any recurring themes or concerns the team flagged', score: 3 },
+      { text: 'Treat it as natural fluctuation and reassess only if velocity drops further in the next sprint', score: 1 },
     ],
   },
   {
@@ -185,10 +185,10 @@ export const quizQuestions = [
     category: 'agile',
     question: 'How do you prioritize features in a product backlog?',
     options: [
-      { text: 'First come, first served', score: 1 },
-      { text: 'Use frameworks like RICE, MoSCoW, or value vs. effort while considering strategic alignment', score: 4 },
-      { text: 'Whatever the loudest stakeholder wants', score: 1 },
-      { text: 'Only work on features with clear revenue impact', score: 2 },
+      { text: 'Prioritize based on engineering effort estimates to maximize the number of features shipped per sprint', score: 3 },
+      { text: 'Let the most senior business stakeholder weigh in — they have the broadest context on business value', score: 1 },
+      { text: 'Focus exclusively on features with a direct and measurable revenue impact', score: 2 },
+      { text: 'Apply frameworks like RICE or MoSCoW, weighing impact, reach, confidence, and effort against strategic alignment', score: 4 },
     ],
   },
   // Analytics & Metrics
@@ -197,10 +197,10 @@ export const quizQuestions = [
     category: 'analytics',
     question: 'What is a North Star metric?',
     options: [
-      { text: 'The company\'s stock price', score: 1 },
-      { text: 'A single metric that best captures the core value your product delivers to customers', score: 4 },
-      { text: 'Monthly revenue', score: 2 },
-      { text: 'The number of features shipped per quarter', score: 1 },
+      { text: 'The primary KPI that the executive team tracks each quarter to assess overall company performance', score: 3 },
+      { text: 'A single metric that captures the core value your product delivers to customers and best predicts long-term growth', score: 4 },
+      { text: 'A composite index of DAU, retention, and NPS that gives a holistic view of product health', score: 1 },
+      { text: 'The revenue metric that most directly correlates with the company\'s current financial targets', score: 2 },
     ],
   },
   {
@@ -208,10 +208,10 @@ export const quizQuestions = [
     category: 'analytics',
     question: 'Your feature launched and DAU increased 20% but retention dropped 10%. How do you interpret this?',
     options: [
-      { text: 'It\'s a success because DAU went up', score: 1 },
-      { text: 'Investigate if the feature attracts low-intent users or degrades the experience for existing users', score: 4 },
-      { text: 'It\'s a failure because retention dropped', score: 2 },
-      { text: 'Wait a month and check again', score: 2 },
+      { text: 'Declare success — DAU growth is the primary signal of user interest and product-market fit', score: 1 },
+      { text: 'Hold conclusions and monitor for another 4 weeks to see if retention naturally stabilizes', score: 3 },
+      { text: 'Investigate whether the feature attracts low-intent users or degrades the existing user experience — the metrics together tell a complex story', score: 4 },
+      { text: 'Call it a mixed result — the team shipped, now move on and address retention in a future sprint', score: 2 },
     ],
   },
   {
@@ -219,10 +219,10 @@ export const quizQuestions = [
     category: 'analytics',
     question: 'How would you set up an A/B test for a new checkout flow?',
     options: [
-      { text: 'Show the new flow to all users and compare with historical data', score: 1 },
-      { text: 'Define hypothesis, success metrics, sample size, run control/variant simultaneously, and analyze statistical significance', score: 4 },
-      { text: 'Let the design team decide which version looks better', score: 1 },
-      { text: 'Run it for one day and see which performs better', score: 2 },
+      { text: 'Define a clear hypothesis and success metric, calculate required sample size, run control and variant simultaneously, and only conclude at statistical significance', score: 4 },
+      { text: 'Expose the new flow to a random 50% of users for two weeks and compare aggregate conversion rates', score: 3 },
+      { text: 'Roll out to all users and compare performance against the previous month\'s baseline conversion rate', score: 2 },
+      { text: 'Test with a small cohort first and expand rollout progressively if early signals look positive', score: 1 },
     ],
   },
   // Product Strategy
@@ -231,10 +231,10 @@ export const quizQuestions = [
     category: 'strategy',
     question: 'How do you decide between building a feature in-house vs. using a third-party solution?',
     options: [
-      { text: 'Always build in-house for full control', score: 1 },
-      { text: 'Evaluate based on core competency, cost, time-to-market, strategic value, and long-term maintenance', score: 4 },
-      { text: 'Always use third-party to save time', score: 1 },
-      { text: 'Let engineering decide based on their preference', score: 2 },
+      { text: 'Default to building in-house — it gives full control over the experience and avoids vendor dependency', score: 1 },
+      { text: 'Default to third-party to maximise speed-to-market, then rebuild in-house once demand is validated', score: 3 },
+      { text: 'Let engineering decide based on their familiarity and the complexity of integration', score: 2 },
+      { text: 'Evaluate based on core competency, time-to-market, total cost of ownership, strategic differentiation, and long-term maintenance burden', score: 4 },
     ],
   },
   {
@@ -242,10 +242,10 @@ export const quizQuestions = [
     category: 'strategy',
     question: 'Your product is growing but facing increasing churn. What strategic approach do you take?',
     options: [
-      { text: 'Focus entirely on acquiring new users to offset churn', score: 1 },
-      { text: 'Analyze churn cohorts, identify patterns, and invest in retention-focused improvements while maintaining growth', score: 4 },
-      { text: 'Lower the price to keep users', score: 2 },
-      { text: 'Add more features to increase stickiness', score: 2 },
+      { text: 'Invest in high-demand new features to increase the product\'s stickiness and give users more reasons to stay', score: 2 },
+      { text: 'Analyze churn cohorts to identify patterns and root causes, then invest in targeted retention improvements while sustaining acquisition', score: 4 },
+      { text: 'Accelerate new user acquisition to compensate — growth can outpace churn while you fix retention in parallel', score: 3 },
+      { text: 'Reduce pricing to lower the perceived cost of staying and remove the financial motivation to churn', score: 1 },
     ],
   },
   {
@@ -253,10 +253,10 @@ export const quizQuestions = [
     category: 'strategy',
     question: 'What frameworks do you use to define product vision?',
     options: [
-      { text: 'I don\'t use frameworks, I rely on intuition', score: 1 },
-      { text: 'Combine market analysis, user research, company mission, and frameworks like Jobs-to-be-Done or Vision/Strategy/Roadmap', score: 4 },
-      { text: 'Copy the market leader\'s vision', score: 1 },
-      { text: 'Focus only on what sales team requests', score: 1 },
+      { text: 'Start from the company mission and executive mandate, then translate it into a product vision statement', score: 3 },
+      { text: 'Analyze market leaders and adapt their vision to your company\'s context and stage', score: 1 },
+      { text: 'Synthesize market analysis, user research, company mission, and frameworks like Jobs-to-be-Done and Vision/Strategy/Roadmap', score: 4 },
+      { text: 'Lead with what sales and key enterprise customers are consistently requesting — they represent real, validated demand', score: 2 },
     ],
   },
   // Communication
@@ -265,10 +265,10 @@ export const quizQuestions = [
     category: 'communication',
     question: 'How do you write an effective PRD (Product Requirements Document)?',
     options: [
-      { text: 'List every detail of the solution upfront', score: 2 },
-      { text: 'Define the problem, user stories, success metrics, scope, and leave room for engineering to propose solutions', score: 4 },
-      { text: 'Write a one-line description and let the team figure it out', score: 1 },
-      { text: 'Copy a template and fill in the blanks', score: 2 },
+      { text: 'Clearly define the problem, user stories, success metrics, and scope constraints — leaving room for engineering to propose solutions', score: 4 },
+      { text: 'Document every detail of the desired solution upfront to minimise ambiguity and back-and-forth with the team', score: 2 },
+      { text: 'Follow a standard PRD template with sections for goals, user stories, requirements, and edge cases', score: 3 },
+      { text: 'Keep it to a concise one-pager — brevity prevents over-engineering and keeps the team moving fast', score: 1 },
     ],
   },
   {
@@ -276,10 +276,10 @@ export const quizQuestions = [
     category: 'communication',
     question: 'You need to present a product strategy to the board. How do you prepare?',
     options: [
-      { text: 'Create a detailed 50-slide deck covering every aspect', score: 1 },
-      { text: 'Craft a concise narrative with data-backed insights, clear asks, and anticipated questions', score: 4 },
-      { text: 'Wing it since you know the product well', score: 1 },
-      { text: 'Send a written document instead of presenting', score: 2 },
+      { text: 'Send a detailed pre-read document beforehand and use the live session purely for questions and discussion', score: 2 },
+      { text: 'Build a comprehensive deck covering all product context so the board can ask well-informed questions', score: 1 },
+      { text: 'Structure around three core slides: the problem, the solution, and the ask — keep it under 10 minutes', score: 3 },
+      { text: 'Craft a concise, data-backed narrative with a clear ask, anticipate likely board questions, and tailor framing to their strategic priorities', score: 4 },
     ],
   },
   {
@@ -287,10 +287,10 @@ export const quizQuestions = [
     category: 'communication',
     question: 'An engineer disagrees with your product decision. How do you handle it?',
     options: [
-      { text: 'Pull rank as the PM and move forward', score: 1 },
-      { text: 'Listen to their perspective, share your reasoning with data, and find common ground', score: 4 },
-      { text: 'Avoid the confrontation and change your decision', score: 1 },
-      { text: 'Escalate to their manager', score: 1 },
+      { text: 'Schedule a 1:1, hear them out, then make a final call and align the team — decisions need a clear owner', score: 2 },
+      { text: 'Listen to their concerns, share your reasoning supported by data, and find common ground or articulate the trade-offs clearly', score: 4 },
+      { text: 'Escalate to their engineering manager to resolve the disagreement through the proper reporting chain', score: 1 },
+      { text: 'Invite them to write up their concerns so the broader team can weigh in and reach a collective decision', score: 3 },
     ],
   },
 ];
