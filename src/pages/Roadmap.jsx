@@ -21,6 +21,7 @@ export default function Roadmap() {
   const { state, dispatch } = useApp();
   const navigate = useNavigate();
   const [expandedMilestone, setExpandedMilestone] = useState(null);
+  const [milestoneActiveTab, setMilestoneActiveTab] = useState({});
   const [quizMode, setQuizMode] = useState(null);
   const [shuffledQuiz, setShuffledQuiz] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
@@ -157,26 +158,70 @@ export default function Roadmap() {
   if (quizSubmitted) {
     const score = state.roadmapProgress[quizMode.id]?.quizScore || 0;
     const passed = score >= 80;
+    const correct = shuffledQuiz.filter((q, i) => quizAnswers[i] === q.answer).length;
     return (
-      <div className="page-container center-content">
-        <div className={`quiz-result-card ${passed ? 'passed' : 'failed'}`}>
-          {passed ? <Trophy size={60} color="#f59e0b" /> : <Target size={60} color="#ef4444" />}
-          <h2>{passed ? 'Congratulations!' : 'Not quite there yet'}</h2>
-          <div className="result-score">
-            <span className="big-score">{score}%</span>
-            <span className="pass-mark">Pass mark: 80%</span>
+      <div className="page-container">
+        <div className="quiz-result-page">
+          <div className={`quiz-result-card ${passed ? 'passed' : 'failed'}`}>
+            {passed ? <Trophy size={48} color="#f59e0b" /> : <Target size={48} color="#ef4444" />}
+            <h2>{passed ? 'Congratulations!' : 'Not quite there yet'}</h2>
+            <div className="result-score">
+              <span className="big-score">{score}%</span>
+              <span className="pass-mark">Pass mark: 80%</span>
+            </div>
+            {passed ? (
+              <>
+                <p>You earned <strong>{quizMode.xpReward} XP</strong>! 🎉</p>
+                <div className="xp-earned">+{quizMode.xpReward} XP</div>
+              </>
+            ) : (
+              <p>{correct}/{shuffledQuiz.length} correct — review below and try again.</p>
+            )}
           </div>
-          {passed ? (
-            <>
-              <p>You earned <strong>{quizMode.xpReward} XP</strong>! 🎉</p>
-              <div className="xp-earned">+{quizMode.xpReward} XP</div>
-            </>
-          ) : (
-            <p>Review the course materials and try again. You can do this!</p>
-          )}
-          <button className="btn-primary" onClick={() => { setQuizMode(null); setQuizSubmitted(false); }}>
-            Back to Roadmap
-          </button>
+
+          <div className="quiz-answer-review">
+            <h3>Answer Review</h3>
+            {shuffledQuiz.map((q, i) => {
+              const userPick = quizAnswers[i];
+              const isCorrect = userPick === q.answer;
+              return (
+                <div key={i} className={`mq-review-card ${isCorrect ? 'mq-card-correct' : 'mq-card-wrong'}`}>
+                  <p className="mq-review-q">
+                    <span className={`mq-review-badge ${isCorrect ? 'mq-badge-correct' : 'mq-badge-wrong'}`}>
+                      {isCorrect ? '✓' : '✗'}
+                    </span>
+                    Q{i + 1}. {q.q}
+                  </p>
+                  <div className="mq-review-opts">
+                    {q.options.map((opt, j) => {
+                      let cls = 'mq-review-opt';
+                      if (j === q.answer) cls += ' mq-opt-correct';
+                      else if (j === userPick) cls += ' mq-opt-wrong';
+                      return (
+                        <div key={j} className={cls}>
+                          <span className="option-letter">{String.fromCharCode(65 + j)}</span>
+                          {opt}
+                          {j === q.answer && <span className="mq-tag correct">Correct</span>}
+                          {j === userPick && j !== q.answer && <span className="mq-tag wrong">Your answer</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="quiz-result-actions">
+            {!passed && (
+              <button className="btn-primary" onClick={() => { handleQuizStart(quizMode); }}>
+                Retry Assessment
+              </button>
+            )}
+            <button className="btn-secondary" onClick={() => { setQuizMode(null); setQuizSubmitted(false); }}>
+              Back to Roadmap
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -252,31 +297,79 @@ export default function Roadmap() {
 
               {expanded && unlocked && (
                 <div className="milestone-content">
-                  <h4>📚 Recommended Courses</h4>
-                  <div className="courses-list">
-                    {milestone.courses.map((course, ci) => (
-                      <a
-                        key={ci}
-                        href={course.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="course-item"
-                      >
-                        <div className="course-info">
-                          <span className="course-name">{course.name}</span>
-                          <span className="course-platform">
-                            {course.platform} • {course.type === 'free' ? '🆓 Free' : '💰 Paid'}
-                          </span>
-                        </div>
-                        <ExternalLink size={16} />
-                      </a>
-                    ))}
+                  <div className="milestone-tabs">
+                    <button
+                      className={`milestone-tab ${(milestoneActiveTab[milestone.id] || 'courses') === 'courses' ? 'active' : ''}`}
+                      onClick={() => setMilestoneActiveTab(p => ({ ...p, [milestone.id]: 'courses' }))}
+                    >
+                      📚 Courses
+                    </button>
+                    <button
+                      className={`milestone-tab ${(milestoneActiveTab[milestone.id] || 'courses') === 'quiz' ? 'active' : ''}`}
+                      onClick={() => setMilestoneActiveTab(p => ({ ...p, [milestone.id]: 'quiz' }))}
+                    >
+                      📝 Quiz
+                      {score !== undefined && (
+                        <span className={`tab-score ${score >= 80 ? 'pass' : 'fail'}`}>{score}%</span>
+                      )}
+                    </button>
                   </div>
 
-                  {!passed && (
-                    <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(milestone)}>
-                      Take Assessment (need 80% to pass)
-                    </button>
+                  {(milestoneActiveTab[milestone.id] || 'courses') === 'courses' && (
+                    <div className="courses-list">
+                      {milestone.courses.map((course, ci) => (
+                        <a key={ci} href={course.url} target="_blank" rel="noopener noreferrer" className="course-item">
+                          <div className="course-info">
+                            <span className="course-name">{course.name}</span>
+                            <span className="course-platform">
+                              {course.platform} • {course.type === 'free' ? '🆓 Free' : '💰 Paid'}
+                            </span>
+                          </div>
+                          <ExternalLink size={16} />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {(milestoneActiveTab[milestone.id] || 'courses') === 'quiz' && (
+                    <div className="milestone-quiz-tab">
+                      {score === undefined ? (
+                        <>
+                          <p className="quiz-tab-desc">Test your understanding of <strong>{milestone.title}</strong>. Score 80%+ to unlock the next milestone and earn <strong>{milestone.xpReward} XP</strong>.</p>
+                          <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(milestone)}>
+                            Start Assessment
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className={`quiz-tab-score-banner ${score >= 80 ? 'pass' : 'fail'}`}>
+                            {score >= 80 ? '✅' : '❌'} Score: <strong>{score}%</strong> — {score >= 80 ? 'Passed!' : 'Need 80% to pass'}
+                          </div>
+                          <div className="quiz-answer-key">
+                            <h4>Answer Key</h4>
+                            {milestone.quiz.map((q, i) => (
+                              <div key={i} className="mq-review-card mq-card-correct">
+                                <p className="mq-review-q">Q{i + 1}. {q.q}</p>
+                                <div className="mq-review-opts">
+                                  {q.options.map((opt, j) => (
+                                    <div key={j} className={`mq-review-opt ${j === q.answer ? 'mq-opt-correct' : ''}`}>
+                                      <span className="option-letter">{String.fromCharCode(65 + j)}</span>
+                                      {opt}
+                                      {j === q.answer && <span className="mq-tag correct">Correct</span>}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {!passed && (
+                            <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(milestone)}>
+                              Retry Assessment
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -327,31 +420,79 @@ export default function Roadmap() {
 
               {expanded && unlocked && (
                 <div className="milestone-content">
-                  <h4>📚 Recommended Courses</h4>
-                  <div className="courses-list">
-                    {techMilestone.courses.map((course, ci) => (
-                      <a
-                        key={ci}
-                        href={course.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="course-item"
-                      >
-                        <div className="course-info">
-                          <span className="course-name">{course.name}</span>
-                          <span className="course-platform">
-                            {course.platform} • {course.type === 'free' ? '🆓 Free' : '💰 Paid'}
-                          </span>
-                        </div>
-                        <ExternalLink size={16} />
-                      </a>
-                    ))}
+                  <div className="milestone-tabs">
+                    <button
+                      className={`milestone-tab ${(milestoneActiveTab[techMilestone.id] || 'courses') === 'courses' ? 'active' : ''}`}
+                      onClick={() => setMilestoneActiveTab(p => ({ ...p, [techMilestone.id]: 'courses' }))}
+                    >
+                      📚 Courses
+                    </button>
+                    <button
+                      className={`milestone-tab ${(milestoneActiveTab[techMilestone.id] || 'courses') === 'quiz' ? 'active' : ''}`}
+                      onClick={() => setMilestoneActiveTab(p => ({ ...p, [techMilestone.id]: 'quiz' }))}
+                    >
+                      📝 Quiz
+                      {score !== undefined && (
+                        <span className={`tab-score ${score >= 80 ? 'pass' : 'fail'}`}>{score}%</span>
+                      )}
+                    </button>
                   </div>
 
-                  {!passed && (
-                    <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(techMilestone)}>
-                      Take Assessment (need 80% to pass)
-                    </button>
+                  {(milestoneActiveTab[techMilestone.id] || 'courses') === 'courses' && (
+                    <div className="courses-list">
+                      {techMilestone.courses.map((course, ci) => (
+                        <a key={ci} href={course.url} target="_blank" rel="noopener noreferrer" className="course-item">
+                          <div className="course-info">
+                            <span className="course-name">{course.name}</span>
+                            <span className="course-platform">
+                              {course.platform} • {course.type === 'free' ? '🆓 Free' : '💰 Paid'}
+                            </span>
+                          </div>
+                          <ExternalLink size={16} />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {(milestoneActiveTab[techMilestone.id] || 'courses') === 'quiz' && (
+                    <div className="milestone-quiz-tab">
+                      {score === undefined ? (
+                        <>
+                          <p className="quiz-tab-desc">Test your technical PM readiness. Score 80%+ to unlock the AI Mock Interview and earn <strong>{techMilestone.xpReward} XP</strong>.</p>
+                          <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(techMilestone)}>
+                            Start Assessment
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className={`quiz-tab-score-banner ${score >= 80 ? 'pass' : 'fail'}`}>
+                            {score >= 80 ? '✅' : '❌'} Score: <strong>{score}%</strong> — {score >= 80 ? 'Passed!' : 'Need 80% to pass'}
+                          </div>
+                          <div className="quiz-answer-key">
+                            <h4>Answer Key</h4>
+                            {techMilestone.quiz.map((q, i) => (
+                              <div key={i} className="mq-review-card mq-card-correct">
+                                <p className="mq-review-q">Q{i + 1}. {q.q}</p>
+                                <div className="mq-review-opts">
+                                  {q.options.map((opt, j) => (
+                                    <div key={j} className={`mq-review-opt ${j === q.answer ? 'mq-opt-correct' : ''}`}>
+                                      <span className="option-letter">{String.fromCharCode(65 + j)}</span>
+                                      {opt}
+                                      {j === q.answer && <span className="mq-tag correct">Correct</span>}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {!passed && (
+                            <button className="btn-primary take-quiz-btn" onClick={() => handleQuizStart(techMilestone)}>
+                              Retry Assessment
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
