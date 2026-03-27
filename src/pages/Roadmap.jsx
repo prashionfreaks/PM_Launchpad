@@ -25,7 +25,7 @@ export default function Roadmap() {
   const [quizMode, setQuizMode] = useState(null);
   const [shuffledQuiz, setShuffledQuiz] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizResultModal, setQuizResultModal] = useState(null);
   const [showBooking, setShowBooking] = useState(false);
   const [bookingForm, setBookingForm] = useState({ date: '', time: '', pmName: '', notes: '' });
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
@@ -96,7 +96,7 @@ export default function Roadmap() {
     setQuizMode(milestone);
     setShuffledQuiz(shuffled);
     setQuizAnswers({});
-    setQuizSubmitted(false);
+    setQuizResultModal(null);
   };
 
   const handleQuizAnswer = (qIndex, ansIndex) => {
@@ -109,16 +109,11 @@ export default function Roadmap() {
       return count + (quizAnswers[i] === q.answer ? 1 : 0);
     }, 0);
     const score = Math.round((correct / shuffledQuiz.length) * 100);
+    const passed = score >= 80;
 
-    dispatch({
-      type: 'COMPLETE_MILESTONE_QUIZ',
-      payload: {
-        milestoneId: milestone.id,
-        score,
-      },
-    });
+    dispatch({ type: 'COMPLETE_MILESTONE_QUIZ', payload: { milestoneId: milestone.id, score } });
 
-    if (score >= 80) {
+    if (passed) {
       dispatch({
         type: 'UPDATE_ROADMAP_PROGRESS',
         payload: {
@@ -132,10 +127,27 @@ export default function Roadmap() {
       });
     }
 
-    setQuizSubmitted(true);
+    // Find next milestone for the "Next" button
+    const allMilestones = [...milestones, techMilestone];
+    const currentIdx = allMilestones.findIndex(m => m.id === milestone.id);
+    const nextMilestone = passed && currentIdx < allMilestones.length - 1
+      ? allMilestones[currentIdx + 1]
+      : null;
+
+    setQuizMode(null); // return to roadmap view; modal overlays it
+    setQuizResultModal({
+      milestone,
+      score,
+      passed,
+      correct,
+      total: shuffledQuiz.length,
+      nextMilestone,
+      shuffledQuiz: [...shuffledQuiz],
+      quizAnswers: { ...quizAnswers },
+    });
   };
 
-  if (quizMode && !quizSubmitted) {
+  if (quizMode) {
     return (
       <div className="page-container">
         <div className="milestone-quiz">
@@ -168,78 +180,6 @@ export default function Roadmap() {
               onClick={handleQuizSubmit}
             >
               Submit ({Object.keys(quizAnswers).length}/{shuffledQuiz.length})
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (quizSubmitted) {
-    const correct = shuffledQuiz.filter((q, i) => quizAnswers[i] === q.answer).length;
-    const score = shuffledQuiz.length > 0 ? Math.round((correct / shuffledQuiz.length) * 100) : 0;
-    const passed = score >= 80;
-    return (
-      <div className="page-container">
-        <div className="quiz-result-page">
-          <div className={`quiz-result-card ${passed ? 'passed' : 'failed'}`}>
-            {passed ? <Trophy size={48} color="#f59e0b" /> : <Target size={48} color="#ef4444" />}
-            <h2>{passed ? 'Congratulations!' : 'Not quite there yet'}</h2>
-            <div className="result-score">
-              <span className="big-score">{score}%</span>
-              <span className="pass-mark">Pass mark: 80%</span>
-            </div>
-            {passed ? (
-              <>
-                <p>You earned <strong>{quizMode.xpReward} XP</strong>! 🎉</p>
-                <div className="xp-earned">+{quizMode.xpReward} XP</div>
-              </>
-            ) : (
-              <p>{correct}/{shuffledQuiz.length} correct — review below and try again.</p>
-            )}
-          </div>
-
-          <div className="quiz-answer-review">
-            <h3>Answer Review</h3>
-            {shuffledQuiz.map((q, i) => {
-              const userPick = quizAnswers[i];
-              const isCorrect = userPick === q.answer;
-              return (
-                <div key={i} className={`mq-review-card ${isCorrect ? 'mq-card-correct' : 'mq-card-wrong'}`}>
-                  <p className="mq-review-q">
-                    <span className={`mq-review-badge ${isCorrect ? 'mq-badge-correct' : 'mq-badge-wrong'}`}>
-                      {isCorrect ? '✓' : '✗'}
-                    </span>
-                    Q{i + 1}. {q.q}
-                  </p>
-                  <div className="mq-review-opts">
-                    {q.options.map((opt, j) => {
-                      let cls = 'mq-review-opt';
-                      if (j === q.answer) cls += ' mq-opt-correct';
-                      else if (j === userPick) cls += ' mq-opt-wrong';
-                      return (
-                        <div key={j} className={cls}>
-                          <span className="option-letter">{String.fromCharCode(65 + j)}</span>
-                          {opt}
-                          {j === q.answer && <span className="mq-tag correct">Correct</span>}
-                          {j === userPick && j !== q.answer && <span className="mq-tag wrong">Your answer</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="quiz-result-actions">
-            {!passed && (
-              <button className="btn-primary" onClick={() => { handleQuizStart(quizMode); }}>
-                Retry Assessment
-              </button>
-            )}
-            <button className="btn-secondary" onClick={() => { setQuizMode(null); setQuizSubmitted(false); }}>
-              Back to Roadmap
             </button>
           </div>
         </div>
@@ -280,6 +220,7 @@ export default function Roadmap() {
           return (
             <div
               key={milestone.id}
+              id={`milestone-${milestone.id}`}
               className={`milestone-card ${passed ? 'completed' : ''} ${!unlocked ? 'locked' : ''} ${expanded ? 'expanded' : ''}`}
             >
               <div
@@ -405,7 +346,7 @@ export default function Roadmap() {
           const score = state.roadmapProgress[techMilestone.id]?.quizScore;
 
           return (
-            <div className={`milestone-card tech-readiness ${passed ? 'completed' : ''} ${!unlocked ? 'locked' : ''} ${expanded ? 'expanded' : ''}`}>
+            <div id={`milestone-${techMilestone.id}`} className={`milestone-card tech-readiness ${passed ? 'completed' : ''} ${!unlocked ? 'locked' : ''} ${expanded ? 'expanded' : ''}`}>
               <div
                 className="milestone-header"
                 onClick={() => unlocked && setExpandedMilestone(expanded ? null : techMilestone.id)}
@@ -698,6 +639,94 @@ export default function Roadmap() {
           );
         })()}
       </div>
+
+      {/* ── Quiz Result Modal ── */}
+      {quizResultModal && (
+        <div className="qrm-overlay" onClick={() => setQuizResultModal(null)}>
+          <div className="qrm-modal" onClick={e => e.stopPropagation()}>
+            <div className={`qrm-score-circle ${quizResultModal.passed ? 'pass' : 'fail'}`}>
+              <span className="qrm-pct">{quizResultModal.score}%</span>
+              <span className="qrm-label">{quizResultModal.passed ? 'Passed' : 'Failed'}</span>
+            </div>
+            <h3 className="qrm-title">{quizResultModal.passed ? '🎉 Well done!' : '😅 Not quite there'}</h3>
+            <p className="qrm-detail">
+              {quizResultModal.correct}/{quizResultModal.total} correct
+              {quizResultModal.passed
+                ? ` · +${quizResultModal.milestone.xpReward} XP earned!`
+                : ' · Need 80% to pass'}
+            </p>
+            {quizResultModal.passed && (
+              <div className="xp-earned">+{quizResultModal.milestone.xpReward} XP</div>
+            )}
+
+            <div className="qrm-review">
+              <p className="qrm-review-heading">Answer Review</p>
+              {quizResultModal.shuffledQuiz.map((q, i) => {
+                const userPick = quizResultModal.quizAnswers[i];
+                const isCorrect = userPick === q.answer;
+                return (
+                  <div key={i} className={`mq-review-card ${isCorrect ? 'mq-card-correct' : 'mq-card-wrong'}`}>
+                    <p className="mq-review-q">
+                      <span className={`mq-review-badge ${isCorrect ? 'mq-badge-correct' : 'mq-badge-wrong'}`}>
+                        {isCorrect ? '✓' : '✗'}
+                      </span>
+                      Q{i + 1}. {q.q}
+                    </p>
+                    <div className="mq-review-opts">
+                      {q.options.map((opt, j) => {
+                        let cls = 'mq-review-opt';
+                        if (j === q.answer) cls += ' mq-opt-correct';
+                        else if (j === userPick) cls += ' mq-opt-wrong';
+                        return (
+                          <div key={j} className={cls}>
+                            <span className="option-letter">{String.fromCharCode(65 + j)}</span>
+                            {opt}
+                            {j === q.answer && <span className="mq-tag correct">Correct</span>}
+                            {j === userPick && j !== q.answer && <span className="mq-tag wrong">Your answer</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="qrm-actions">
+              {!quizResultModal.passed && (
+                <button className="btn-primary" onClick={() => {
+                  const m = quizResultModal.milestone;
+                  setQuizResultModal(null);
+                  handleQuizStart(m);
+                }}>
+                  Retry Assessment
+                </button>
+              )}
+              {quizResultModal.nextMilestone && (
+                <button className="btn-primary" onClick={() => {
+                  const next = quizResultModal.nextMilestone;
+                  setExpandedMilestone(next.id);
+                  setMilestoneActiveTab(p => ({ ...p, [next.id]: 'courses' }));
+                  setQuizResultModal(null);
+                  setTimeout(() => {
+                    document.getElementById(`milestone-${next.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }}>
+                  Next: {quizResultModal.nextMilestone.title} →
+                </button>
+              )}
+              {!quizResultModal.nextMilestone && quizResultModal.passed && (
+                <button className="btn-primary" onClick={() => setQuizResultModal(null)}>
+                  View Roadmap
+                </button>
+              )}
+              <button className="btn-secondary" onClick={() => setQuizResultModal(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
