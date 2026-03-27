@@ -1617,6 +1617,14 @@ body {
 .spotify-btn:hover {
   background: rgba(30,215,96,0.2) !important;
 }
+.apple-btn {
+  background: rgba(252,60,114,0.1) !important;
+  color: #fc3c72 !important;
+  border-color: rgba(252,60,114,0.3) !important;
+}
+.apple-btn:hover {
+  background: rgba(252,60,114,0.2) !important;
+}
 
 /* ═══════════ Tabs ═══════════ */
 .tabs {

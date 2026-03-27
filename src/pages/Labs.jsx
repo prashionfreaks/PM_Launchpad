@@ -272,11 +272,11 @@ export default function Labs() {
                     ))}
                   </div>
                   <div className="podcast-actions">
-                    <a href={pod.url} target="_blank" rel="noopener noreferrer" className="btn-small">
-                      Website <ExternalLink size={13} />
-                    </a>
                     <a href={pod.spotifyUrl} target="_blank" rel="noopener noreferrer" className="btn-small spotify-btn">
-                      Spotify <ExternalLink size={13} />
+                      🎧 Spotify
+                    </a>
+                    <a href={pod.applePodcastsUrl} target="_blank" rel="noopener noreferrer" className="btn-small apple-btn">
+                      🎵 Apple Podcasts
                     </a>
                   </div>
                 </div>
