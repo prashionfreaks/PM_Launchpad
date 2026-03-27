@@ -5241,8 +5241,8 @@ body {
 }
 
 .pub-error h1 { font-size: 24px; font-weight: 800; color: var(--text-heading); }
-.pub-error h2 { font-size: 16px; color: var(--text-light); }
-.pub-error p { font-size: 14px; color: var(--text-light); }
+.pub-error h2 { font-size: 16px; color: #475569; }
+.pub-error p { font-size: 14px; color: #475569; }
 .pub-cta-btn {
   display: inline-flex; padding: 10px 24px; background: var(--primary); color: white;
   border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; margin-top: 8px;
@@ -5256,7 +5256,7 @@ body {
   justify-content: center;
   gap: 16px;
   min-height: 100vh;
-  color: var(--text-light);
+  color: #475569;
 }
 
 .pub-loading-spinner {
@@ -5424,7 +5424,7 @@ body {
 .pub-stat-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-light);
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -5452,7 +5452,7 @@ body {
 
 .pub-about-text {
   font-size: 14px;
-  color: var(--text);
+  color: #334155;
   line-height: 1.75;
 }
 
@@ -5531,13 +5531,13 @@ body {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--text-light);
+  color: #475569;
   margin-bottom: 6px;
 }
 
 .pub-exp-desc {
   font-size: 13px;
-  color: var(--text);
+  color: #334155;
   line-height: 1.6;
   white-space: pre-line;
 }
@@ -5581,12 +5581,12 @@ body {
 
 .pub-edu-entry p, .pub-cert-entry p {
   font-size: 12px;
-  color: var(--text-light);
+  color: #475569;
 }
 
 .pub-edu-year {
   font-size: 11px;
-  color: var(--text-light);
+  color: #475569;
 }
 
 /* Competencies */
@@ -5619,7 +5619,7 @@ body {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--text);
+  color: #334155;
   padding: 3px 0;
 }
 
@@ -5631,9 +5631,9 @@ body {
   gap: 10px;
   padding: 28px 0 0;
   margin-top: 12px;
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid #e2e8f0;
   font-size: 13px;
-  color: var(--text-light);
+  color: #475569;
 }
 
 .pub-footer a {
