@@ -151,12 +151,21 @@ export function AppProvider({ children }) {
         setAuthLoading(false);
       });
 
-    // Listen for auth changes (login, logout, token refresh)
+    // Listen for auth changes (login, logout, token refresh, session expiry)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setAuthUser(session?.user ?? null);
         if (event === 'SIGNED_OUT') {
           dispatch({ type: 'RESET' });
+          localStorage.removeItem('pm-platform-state');
+          // Redirect to login unless already on an auth page.
+          // Covers both explicit logout and natural session expiry
+          // (Supabase fires SIGNED_OUT when refresh token expires).
+          const onAuthPage = ['/login', '/signup', '/verify-email', '/forgot-password', '/reset-password']
+            .includes(window.location.pathname);
+          if (!onAuthPage) {
+            window.location.replace('/login');
+          }
         }
       }
     );
