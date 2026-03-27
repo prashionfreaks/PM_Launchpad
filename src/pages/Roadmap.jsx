@@ -31,13 +31,33 @@ export default function Roadmap() {
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
   if (!state.selectedPath) {
+    const hasEvaluated = !!state.quizResults;
     return (
       <div className="page-container center-content">
-        <h2>No path selected</h2>
-        <p>Complete the evaluation and choose a learning path first.</p>
-        <button className="btn-primary" onClick={() => navigate('/results')}>
-          View Results
-        </button>
+        <div className="roadmap-gate-card">
+          <div className="roadmap-gate-icon">🗺️</div>
+          <h2>Your Roadmap Awaits</h2>
+          {hasEvaluated ? (
+            <>
+              <p>You've completed the evaluation — now pick a learning path to unlock your personalized roadmap.</p>
+              <button className="btn-primary" onClick={() => navigate('/profile?tab=evaluation')}>
+                Choose Your Path →
+              </button>
+            </>
+          ) : (
+            <>
+              <p>Take the PM Skills Assessment first. It takes ~5 minutes and builds a personalized roadmap based on your background and goals.</p>
+              <div className="roadmap-gate-steps">
+                <div className="gate-step"><span>1</span> Complete the skills assessment</div>
+                <div className="gate-step"><span>2</span> Get your PM role recommendation</div>
+                <div className="gate-step"><span>3</span> Unlock your personalized roadmap</div>
+              </div>
+              <button className="btn-primary" onClick={() => navigate('/profile?tab=evaluation')}>
+                Take the Assessment →
+              </button>
+            </>
+          )}
+        </div>
       </div>
     );
   }
