@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import {
+  fetchUser,
   upsertUser,
   updateQuizResults,
   updateSelectedPath,
@@ -153,8 +154,18 @@ export function AppProvider({ children }) {
 
     // Listen for auth changes (login, logout, token refresh, session expiry)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setAuthUser(session?.user ?? null);
+        if (event === 'SIGNED_IN' && session?.user?.email) {
+          const saved = await fetchUser(session.user.email);
+          if (saved?.user?.name) {
+            dispatch({ type: 'SET_USER', payload: saved.user });
+            if (saved.quizResults) dispatch({ type: 'SET_QUIZ_RESULTS', payload: saved.quizResults });
+            if (saved.selectedPath) dispatch({ type: 'SET_SELECTED_PATH', payload: saved.selectedPath });
+            if (Object.keys(saved.roadmapProgress).length) dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: saved.roadmapProgress });
+            if (saved.interviewResult) dispatch({ type: 'SET_INTERVIEW_RESULT', payload: saved.interviewResult });
+          }
+        }
         if (event === 'SIGNED_OUT') {
           dispatch({ type: 'RESET' });
           localStorage.removeItem('pm-platform-state');
