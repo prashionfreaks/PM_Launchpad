@@ -17,18 +17,14 @@ import Jobs from './pages/Jobs';
 import Portfolio from './pages/Portfolio';
 import PublicPortfolio from './pages/PublicPortfolio';
 import Community from './pages/Community';
+import PMLoader from './components/PMLoader';
 import './App.css';
 
 function AppRoutes() {
   const { state, authUser, authLoading, hydrating } = useApp();
 
-  if (authLoading || hydrating) {
-    return (
-      <div className="auth-loading">
-        <div className="auth-loading-spinner" />
-      </div>
-    );
-  }
+  if (authLoading) return <PMLoader message="Getting your workspace ready..." />;
+  if (hydrating)   return <PMLoader message="Loading your PM journey..." />;
 
   const isAuthenticated = !!authUser;
   const isOnboarded = !!state.user;

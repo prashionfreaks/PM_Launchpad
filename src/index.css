@@ -5899,6 +5899,213 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── PM Journey Loader ──────────────────────────────────────────────────── */
+.pml-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 9999;
+  gap: 28px;
+}
+
+.pml-sky {
+  position: relative;
+  width: 540px;
+  max-width: 92vw;
+  height: 210px;
+  background: linear-gradient(160deg, #07091a 0%, #0f1535 40%, #0d2340 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(99,102,241,0.2), 0 2px 8px rgba(0,0,0,0.4);
+  border: 1px solid rgba(99,102,241,0.15);
+}
+
+/* Stars */
+.pml-stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.7) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 120px 80px, 80px 60px, 60px 50px;
+  background-position: 10px 12px, 35px 28px, 55px 8px;
+  opacity: 0.6;
+}
+
+/* Clouds */
+.pml-cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.08);
+  border-radius: 60px;
+}
+.pml-cloud::before,
+.pml-cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+.pml-c1 { width: 90px; height: 22px; top: 28px; left: -100px; animation: pml-drift 14s linear infinite; }
+.pml-c1::before { width: 42px; height: 30px; bottom: 8px; left: 12px; }
+.pml-c1::after  { width: 32px; height: 24px; bottom: 8px; left: 44px; }
+
+.pml-c2 { width: 65px; height: 16px; top: 65px; left: -80px; opacity: 0.7; animation: pml-drift 20s linear infinite 5s; }
+.pml-c2::before { width: 30px; height: 22px; bottom: 5px; left: 8px; }
+.pml-c2::after  { width: 22px; height: 16px; bottom: 5px; left: 30px; }
+
+.pml-c3 { width: 50px; height: 14px; top: 14px; left: -60px; opacity: 0.45; animation: pml-drift 17s linear infinite 9s; }
+.pml-c3::before { width: 24px; height: 18px; bottom: 4px; left: 6px; }
+.pml-c3::after  { width: 16px; height: 13px; bottom: 4px; left: 24px; }
+
+@keyframes pml-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(680px); }
+}
+
+/* Trail arc */
+.pml-trail-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* PM destination flag */
+.pml-dest {
+  position: absolute;
+  right: 52px;
+  top: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.pml-dest-glow {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(245,158,11,0.35) 0%, transparent 70%);
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pml-glow 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pml-glow {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 1;   transform: translateX(-50%) scale(1.35); }
+}
+.pml-dest-flag {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  padding: 5px 13px 5px 10px;
+  border-radius: 6px 6px 6px 0;
+  box-shadow: 0 4px 18px rgba(245,158,11,0.5);
+  position: relative;
+  z-index: 1;
+  animation: pml-flag-wave 2.8s ease-in-out infinite;
+  transform-origin: left center;
+}
+@keyframes pml-flag-wave {
+  0%, 100% { transform: rotate(-2deg); }
+  50%       { transform: rotate(2.5deg); }
+}
+.pml-dest-pole {
+  width: 2px;
+  height: 52px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
+  margin-left: 1px;
+}
+.pml-dest-base {
+  width: 18px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  margin-left: -7px;
+}
+
+/* Flying kite */
+.pml-kite-wrap {
+  position: absolute;
+  left: 38px;
+  top: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pml-fly 3.8s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+}
+@keyframes pml-fly {
+  0%   { transform: translate(0px,   0px)  rotate(-12deg); opacity: 0; }
+  6%   { transform: translate(0px,   0px)  rotate(-12deg); opacity: 1; }
+  25%  { transform: translate(95px, -52px) rotate(9deg);   opacity: 1; }
+  50%  { transform: translate(210px,-68px) rotate(-7deg);  opacity: 1; }
+  72%  { transform: translate(330px,-52px) rotate(11deg);  opacity: 1; }
+  87%  { transform: translate(398px,-44px) rotate(4deg);   opacity: 1; }
+  93%  { transform: translate(408px,-42px) rotate(4deg);   opacity: 0; }
+  100% { transform: translate(0px,   0px)  rotate(-12deg); opacity: 0; }
+}
+
+/* Tail ribbons */
+.pml-tail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  margin-top: 1px;
+}
+.pml-bow {
+  display: block;
+  width: 14px;
+  height: 7px;
+  border-radius: 50%;
+  border: 2px solid rgba(165,180,252,0.75);
+  animation: pml-flutter 0.45s ease-in-out infinite alternate;
+  animation-delay: var(--bd, 0s);
+}
+@keyframes pml-flutter {
+  from { transform: rotate(-18deg) scaleX(1);   opacity: 0.9; }
+  to   { transform: rotate(18deg)  scaleX(0.75); opacity: 0.6; }
+}
+
+/* Bottom text */
+.pml-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pml-message {
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+.pml-dots {
+  display: flex;
+  gap: 7px;
+}
+.pml-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pml-dot 1.3s ease-in-out infinite;
+}
+.pml-dots span:nth-child(2) { animation-delay: 0.2s; }
+.pml-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pml-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1.15); opacity: 1; }
+}
+
 @media (max-width: 768px) {
   .auth-page { flex-direction: column; }
   .auth-hero { width: 100%; min-width: unset; padding: 32px 24px; }
