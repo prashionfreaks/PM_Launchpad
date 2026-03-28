@@ -6032,47 +6032,46 @@ body {
   margin-left: -7px;
 }
 
-/* Flying kite */
-.pml-kite-wrap {
+/* Flying plane */
+.pml-plane-wrap {
   position: absolute;
-  left: 38px;
-  top: 128px;
+  left: 30px;
+  top: 118px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
   align-items: center;
   animation: pml-fly 3.8s cubic-bezier(0.45, 0, 0.35, 1) infinite;
 }
 @keyframes pml-fly {
-  0%   { transform: translate(0px,   0px)  rotate(-12deg); opacity: 0; }
-  6%   { transform: translate(0px,   0px)  rotate(-12deg); opacity: 1; }
-  25%  { transform: translate(95px, -52px) rotate(9deg);   opacity: 1; }
-  50%  { transform: translate(210px,-68px) rotate(-7deg);  opacity: 1; }
-  72%  { transform: translate(330px,-52px) rotate(11deg);  opacity: 1; }
-  87%  { transform: translate(398px,-44px) rotate(4deg);   opacity: 1; }
-  93%  { transform: translate(408px,-42px) rotate(4deg);   opacity: 0; }
-  100% { transform: translate(0px,   0px)  rotate(-12deg); opacity: 0; }
+  0%   { transform: translate(0px,    0px)  rotate(-8deg);  opacity: 0; }
+  6%   { transform: translate(0px,    0px)  rotate(-8deg);  opacity: 1; }
+  25%  { transform: translate(100px, -50px) rotate(-12deg); opacity: 1; }
+  50%  { transform: translate(215px, -66px) rotate(-6deg);  opacity: 1; }
+  72%  { transform: translate(330px, -50px) rotate(-10deg); opacity: 1; }
+  87%  { transform: translate(398px, -42px) rotate(-7deg);  opacity: 1; }
+  93%  { transform: translate(410px, -40px) rotate(-7deg);  opacity: 0; }
+  100% { transform: translate(0px,    0px)  rotate(-8deg);  opacity: 0; }
 }
 
-/* Tail ribbons */
-.pml-tail {
+/* Engine exhaust trail */
+.pml-exhaust {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  margin-top: 1px;
+  gap: 3px;
+  margin-right: -2px;
 }
-.pml-bow {
+.pml-exhaust span {
   display: block;
-  width: 14px;
-  height: 7px;
-  border-radius: 50%;
-  border: 2px solid rgba(165,180,252,0.75);
-  animation: pml-flutter 0.45s ease-in-out infinite alternate;
-  animation-delay: var(--bd, 0s);
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to left, rgba(165,180,252,0.7), transparent);
+  width: var(--ew, 14px);
+  animation: pml-trail-fade 0.6s ease-in-out infinite alternate;
+  animation-delay: var(--ed, 0s);
 }
-@keyframes pml-flutter {
-  from { transform: rotate(-18deg) scaleX(1);   opacity: 0.9; }
-  to   { transform: rotate(18deg)  scaleX(0.75); opacity: 0.6; }
+@keyframes pml-trail-fade {
+  from { opacity: 0.8; transform: scaleX(1); }
+  to   { opacity: 0.3; transform: scaleX(0.6); }
 }
 
 /* Bottom text */
