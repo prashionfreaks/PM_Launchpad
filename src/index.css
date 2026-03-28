@@ -6023,15 +6023,13 @@ body {
   margin-left: -9px;
 }
 
-/* Flying plane — follows a cubic bezier arc across the full screen */
+/* Flying plane — offset-path is set dynamically via JS (viewport-relative) */
 .pml-plane-wrap {
   position: absolute;
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
   z-index: 3;
-  /* S-curve: bottom-left → sweeps high (top portion) → dips back down → PM flag */
-  offset-path: path('M 50,870 C 400,50 1500,950 1870,500');
   offset-rotate: auto;
   animation: pml-fly 5s ease-in-out infinite;
 }
