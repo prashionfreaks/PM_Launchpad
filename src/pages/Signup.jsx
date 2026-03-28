@@ -24,13 +24,16 @@ export default function Signup() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
     });
     setLoading(false);
     if (error) {
       setError(error.message);
+    } else if (data.user && data.user.identities?.length === 0) {
+      // Supabase returns a fake success for existing emails — detect via empty identities
+      setError('An account with this email already exists. Please sign in.');
     } else {
       await supabase.auth.signOut();
       navigate('/login', { state: { fromSignup: true, email: form.email } });

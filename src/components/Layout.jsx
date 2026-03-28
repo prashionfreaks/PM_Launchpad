@@ -24,8 +24,9 @@ export default function Layout() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    dispatch({ type: 'RESET' });
-    navigate('/login');
+    // AppContext's SIGNED_OUT listener handles RESET + redirect to /login
+    // after authUser is properly cleared, avoiding a race condition where
+    // navigate('/login') would redirect back to '/' while authUser was still set.
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(
