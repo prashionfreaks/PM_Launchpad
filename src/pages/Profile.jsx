@@ -13,7 +13,7 @@ import {
   User, Target, Clock, Briefcase, Award,
   BarChart3, Map, CheckCircle, Star, Flame,
   ArrowRight, ClipboardCheck, ChevronLeft, ChevronRight,
-  TrendingUp, TrendingDown, Zap, RotateCcw
+  TrendingUp, TrendingDown, Zap, RotateCcw, HelpCircle, X
 } from 'lucide-react';
 
 const profileTabs = [
@@ -28,6 +28,8 @@ export default function Profile() {
 
   const tabFromUrl = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(tabFromUrl === 'evaluation' ? 'evaluation' : 'overview');
+
+  const [helpOpen, setHelpOpen] = useState(null); // 'overview' | 'evaluation' | null
 
   // Quiz state
   const [currentQ, setCurrentQ] = useState(0);
@@ -223,10 +225,38 @@ export default function Profile() {
               {tab.id === 'evaluation' && state.quizResults && (
                 <span className="subtab-badge">{state.quizResults.overallScore}%</span>
               )}
+              <span
+                className={`tab-help-btn ${helpOpen === tab.id ? 'active' : ''}`}
+                onClick={e => { e.stopPropagation(); setHelpOpen(helpOpen === tab.id ? null : tab.id); }}
+                title="What is this tab?"
+              >
+                <HelpCircle size={14} />
+              </span>
             </button>
           );
         })}
       </div>
+
+      {/* Help Panel */}
+      {helpOpen && (
+        <div className="tab-help-panel">
+          <button className="tab-help-panel-close" onClick={() => setHelpOpen(null)}>
+            <X size={14} />
+          </button>
+          {helpOpen === 'overview' && (
+            <>
+              <h4>📊 Overview</h4>
+              <p>Your personal PM dashboard. Track your XP, readiness score, milestone progress, and interview results — all in one place. Use the <strong>Your Journey</strong> section to follow the step-by-step path from evaluation to landing your first PM role.</p>
+            </>
+          )}
+          {helpOpen === 'evaluation' && (
+            <>
+              <h4>🎯 Evaluation</h4>
+              <p>A 5-minute quiz across <strong>8 core PM skill areas</strong> (strategy, analytics, execution, and more). Your scores reveal your strengths, surface skill gaps, and unlock a personalized learning path tailored to your target PM role. Complete this first to unlock Labs, Interview, Jobs, and Portfolio.</p>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ═══════════ OVERVIEW TAB ═══════════ */}
       {activeTab === 'overview' && (

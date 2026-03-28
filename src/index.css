@@ -3834,6 +3834,62 @@ body {
   line-height: 1.2;
 }
 
+.tab-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 2px;
+  border-radius: 50%;
+  color: var(--text-light);
+  transition: color 0.15s, background 0.15s;
+}
+.tab-help-btn:hover,
+.tab-help-btn.active {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.tab-help-panel {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: 0 0 10px 10px;
+  padding: 16px 20px 16px 20px;
+  margin-top: -28px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.tab-help-panel h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+.tab-help-panel p {
+  margin: 0;
+}
+.tab-help-panel-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+.tab-help-panel-close:hover {
+  color: var(--text-heading);
+  background: var(--border-light);
+}
+
 /* ═══════════ Evaluation Quiz (in Profile) ═══════════ */
 .evaluation-quiz {
   max-width: 720px;
