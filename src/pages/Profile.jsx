@@ -252,6 +252,19 @@ export default function Profile() {
             </div>
           )}
 
+          {/* ── Daily Challenge trigger (only after evaluation) ── */}
+          {state.quizResults && <div className="profile-section">
+            <div className="dc-card dc-trigger-card" onClick={() => setShowDCModal(true)}>
+              <div className="dc-title-row" style={{marginBottom: 0}}>
+                <span className="dc-badge">⚡ Daily Challenge</span>
+                {streak > 0 && <span className="dc-streak">🔥 {streak}-day streak</span>}
+                <span style={{marginLeft: 'auto', fontSize: 13, color: 'var(--text-light)'}}>
+                  {dailyDone || dcSubmitted ? '✅ Done today' : 'Tap to answer →'}
+                </span>
+              </div>
+            </div>
+          </div>}
+
           <div className="profile-stats-grid">
             <div className="stat-card">
               <Flame size={28} color="#f59e0b" />
@@ -274,19 +287,6 @@ export default function Profile() {
               <div className="stat-label">Interview Score</div>
             </div>
           </div>
-
-          {/* ── Daily Challenge trigger (only after evaluation) ── */}
-          {state.quizResults && <div className="profile-section">
-            <div className="dc-card dc-trigger-card" onClick={() => setShowDCModal(true)}>
-              <div className="dc-title-row" style={{marginBottom: 0}}>
-                <span className="dc-badge">⚡ Daily Challenge</span>
-                {streak > 0 && <span className="dc-streak">🔥 {streak}-day streak</span>}
-                <span style={{marginLeft: 'auto', fontSize: 13, color: 'var(--text-light)'}}>
-                  {dailyDone || dcSubmitted ? '✅ Done today' : 'Tap to answer →'}
-                </span>
-              </div>
-            </div>
-          </div>}
 
           {state.quizResults && (
             <div className="profile-section">
