@@ -6030,8 +6030,8 @@ body {
   flex-direction: row-reverse;
   align-items: center;
   z-index: 3;
-  /* Path: bottom-left → sweep above screen → arrive at PM flag right-center */
-  offset-path: path('M 50,870 C 370,-80 1550,-80 1870,500');
+  /* S-curve: bottom-left → sweeps high (top portion) → dips back down → PM flag */
+  offset-path: path('M 50,870 C 400,50 1500,950 1870,500');
   offset-rotate: auto;
   animation: pml-fly 5s ease-in-out infinite;
 }
