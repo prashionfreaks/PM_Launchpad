@@ -102,6 +102,7 @@ function reducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, null, loadState);
   const prevState = useRef(state);
+  const stateRef = useRef(state);          // always-current state for async callbacks
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [hydrating, setHydrating] = useState(false);
@@ -138,6 +139,7 @@ export function AppProvider({ children }) {
     }
 
     prevState.current = state;
+    stateRef.current = state;
   }, [state]);
 
   useEffect(() => {
@@ -158,16 +160,26 @@ export function AppProvider({ children }) {
       async (event, session) => {
         setAuthUser(session?.user ?? null);
         if (event === 'SIGNED_IN' && session?.user?.email) {
-          setHydrating(true);
-          const saved = await fetchUser(session.user.email);
-          if (saved?.user?.name) {
-            dispatch({ type: 'SET_USER', payload: saved.user });
-            if (saved.quizResults) dispatch({ type: 'SET_QUIZ_RESULTS', payload: saved.quizResults });
-            if (saved.selectedPath) dispatch({ type: 'SET_SELECTED_PATH', payload: saved.selectedPath });
-            if (Object.keys(saved.roadmapProgress).length) dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: saved.roadmapProgress });
-            if (saved.interviewResult) dispatch({ type: 'SET_INTERVIEW_RESULT', payload: saved.interviewResult });
+          // Skip hydration if user data is already in state (e.g. page refresh with
+          // localStorage intact). Only fetch from Supabase after a real login where
+          // state was cleared by RESET.
+          if (!stateRef.current.user?.name) {
+            setHydrating(true);
+            try {
+              const saved = await fetchUser(session.user.email);
+              if (saved?.user?.name) {
+                dispatch({ type: 'SET_USER', payload: saved.user });
+                if (saved.quizResults) dispatch({ type: 'SET_QUIZ_RESULTS', payload: saved.quizResults });
+                if (saved.selectedPath) dispatch({ type: 'SET_SELECTED_PATH', payload: saved.selectedPath });
+                if (Object.keys(saved.roadmapProgress).length) dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: saved.roadmapProgress });
+                if (saved.interviewResult) dispatch({ type: 'SET_INTERVIEW_RESULT', payload: saved.interviewResult });
+              }
+            } catch (e) {
+              console.error('Hydration error:', e);
+            } finally {
+              setHydrating(false);
+            }
           }
-          setHydrating(false);
         }
         if (event === 'SIGNED_OUT') {
           dispatch({ type: 'RESET' });
