@@ -228,6 +228,22 @@ body {
   background: var(--primary);
 }
 
+.nav-item-locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: all;
+}
+.nav-item-locked:hover {
+  background: none !important;
+  color: inherit !important;
+  transform: none !important;
+  border-left-color: transparent !important;
+}
+.nav-lock-icon {
+  margin-left: auto;
+  font-size: 12px;
+}
+
 .sidebar-footer {
   margin-top: auto;
   padding: 12px 8px;

@@ -73,11 +73,11 @@ function AppRoutes() {
         <Route path="/quiz" element={<Navigate to="/profile?tab=evaluation" />} />
         <Route path="/results" element={<Navigate to="/profile?tab=evaluation" />} />
         <Route path="/roadmap" element={<Roadmap />} />
-        <Route path="/labs" element={<Labs />} />
-        <Route path="/interview" element={<Interview />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/community" element={<Community />} />
+        <Route path="/labs" element={state.quizResults ? <Labs /> : <Navigate to="/profile?tab=evaluation" />} />
+        <Route path="/interview" element={state.quizResults ? <Interview /> : <Navigate to="/profile?tab=evaluation" />} />
+        <Route path="/jobs" element={state.quizResults ? <Jobs /> : <Navigate to="/profile?tab=evaluation" />} />
+        <Route path="/portfolio" element={state.quizResults ? <Portfolio /> : <Navigate to="/profile?tab=evaluation" />} />
+        <Route path="/community" element={state.quizResults ? <Community /> : <Navigate to="/profile?tab=evaluation" />} />
       </Route>
     </Routes>
   );

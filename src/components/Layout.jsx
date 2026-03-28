@@ -10,11 +10,11 @@ import { useState, useEffect } from 'react';
 const navItems = [
   { path: '/profile', label: 'Profile', icon: User },
   { path: '/roadmap', label: 'Roadmap', icon: Map },
-  { path: '/labs', label: 'Labs', icon: FlaskConical },
-  { path: '/interview', label: 'Interview', icon: Mic },
-  { path: '/jobs', label: 'Jobs', icon: Briefcase },
-  { path: '/portfolio', label: 'Portfolio', icon: FolderOpen },
-  { path: '/community', label: 'Community', icon: Users },
+  { path: '/labs', label: 'Labs', icon: FlaskConical, requiresEval: true },
+  { path: '/interview', label: 'Interview', icon: Mic, requiresEval: true },
+  { path: '/jobs', label: 'Jobs', icon: Briefcase, requiresEval: true },
+  { path: '/portfolio', label: 'Portfolio', icon: FolderOpen, requiresEval: true },
+  { path: '/community', label: 'Community', icon: Users, requiresEval: true },
 ];
 
 export default function Layout() {
@@ -98,6 +98,20 @@ export default function Layout() {
         <nav>
           {navItems.map(item => {
             const Icon = item.icon;
+            const isLocked = item.requiresEval && !state.quizResults;
+            if (isLocked) {
+              return (
+                <span
+                  key={item.path}
+                  className="nav-item nav-item-locked"
+                  title="Complete your evaluation first to unlock this section"
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                  <span className="nav-lock-icon">🔒</span>
+                </span>
+              );
+            }
             return (
               <NavLink
                 key={item.path}
