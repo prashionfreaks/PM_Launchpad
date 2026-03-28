@@ -20,9 +20,9 @@ import Community from './pages/Community';
 import './App.css';
 
 function AppRoutes() {
-  const { state, authUser, authLoading } = useApp();
+  const { state, authUser, authLoading, hydrating } = useApp();
 
-  if (authLoading) {
+  if (authLoading || hydrating) {
     return (
       <div className="auth-loading">
         <div className="auth-loading-spinner" />

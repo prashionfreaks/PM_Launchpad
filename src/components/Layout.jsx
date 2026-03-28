@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import {
   User, Map, FlaskConical,
-  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X, Sun, Moon, Users
+  Mic, Briefcase, FolderOpen, LogOut, Trophy, Menu, X, Sun, Moon, Users, Loader
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -22,7 +22,10 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   const handleLogout = async () => {
+    setLoggingOut(true);
     await supabase.auth.signOut();
     // AppContext's SIGNED_OUT listener handles RESET + redirect to /login
     // after authUser is properly cleared, avoiding a race condition where
@@ -110,9 +113,9 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={18} />
-            <span>Log Out</span>
+          <button className="logout-btn" onClick={handleLogout} disabled={loggingOut}>
+            {loggingOut ? <Loader size={18} className="spin" /> : <LogOut size={18} />}
+            <span>{loggingOut ? 'Logging out...' : 'Log Out'}</span>
           </button>
         </div>
       </aside>

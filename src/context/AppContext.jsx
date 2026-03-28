@@ -104,6 +104,7 @@ export function AppProvider({ children }) {
   const prevState = useRef(state);
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [hydrating, setHydrating] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('pm-platform-state', JSON.stringify(state));
@@ -157,6 +158,7 @@ export function AppProvider({ children }) {
       async (event, session) => {
         setAuthUser(session?.user ?? null);
         if (event === 'SIGNED_IN' && session?.user?.email) {
+          setHydrating(true);
           const saved = await fetchUser(session.user.email);
           if (saved?.user?.name) {
             dispatch({ type: 'SET_USER', payload: saved.user });
@@ -165,6 +167,7 @@ export function AppProvider({ children }) {
             if (Object.keys(saved.roadmapProgress).length) dispatch({ type: 'UPDATE_ROADMAP_PROGRESS', payload: saved.roadmapProgress });
             if (saved.interviewResult) dispatch({ type: 'SET_INTERVIEW_RESULT', payload: saved.interviewResult });
           }
+          setHydrating(false);
         }
         if (event === 'SIGNED_OUT') {
           dispatch({ type: 'RESET' });
@@ -185,7 +188,7 @@ export function AppProvider({ children }) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, authUser, authLoading }}>
+    <AppContext.Provider value={{ state, dispatch, authUser, authLoading, hydrating }}>
       {children}
     </AppContext.Provider>
   );

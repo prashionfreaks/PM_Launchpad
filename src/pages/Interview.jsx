@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { pmRoles } from '../data/quizQuestions';
-import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, VideoOff, SkipForward, RotateCcw, X } from 'lucide-react';
+import { Mic, MicOff, Send, Clock, Award, RefreshCw, Volume2, Keyboard, Video, VideoOff, SkipForward, RotateCcw, X, Loader } from 'lucide-react';
 
 const interviewQuestions = {
   product_manager: [
@@ -143,6 +143,7 @@ export default function Interview() {
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraSupported, setCameraSupported] = useState(false);
   const [cameraError, setCameraError] = useState('');
+  const [cameraLoading, setCameraLoading] = useState(false);
 
   const timerRef = useRef(null);
   const chatEndRef = useRef(null);
@@ -187,6 +188,7 @@ export default function Interview() {
   const startCamera = useCallback(async () => {
     try {
       setCameraError('');
+      setCameraLoading(true);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' },
         audio: false,
@@ -199,6 +201,8 @@ export default function Interview() {
     } catch (err) {
       setCameraError('Camera access denied. Please allow camera permissions.');
       console.warn('Camera error:', err);
+    } finally {
+      setCameraLoading(false);
     }
   }, []);
 
@@ -673,8 +677,8 @@ export default function Interview() {
             <span>Camera off</span>
           </div>
         )}
-        <button className="webcam-toggle" onClick={toggleCamera} title={cameraOn ? 'Turn off camera' : 'Turn on camera'}>
-          {cameraOn ? <VideoOff size={14} /> : <Video size={14} />}
+        <button className="webcam-toggle" onClick={toggleCamera} disabled={cameraLoading} title={cameraOn ? 'Turn off camera' : 'Turn on camera'}>
+          {cameraLoading ? <Loader size={14} className="spin" /> : cameraOn ? <VideoOff size={14} /> : <Video size={14} />}
         </button>
         {cameraError && <div className="webcam-error">{cameraError}</div>}
       </div>
