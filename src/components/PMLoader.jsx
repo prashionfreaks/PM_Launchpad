@@ -10,12 +10,13 @@ export default function PMLoader({ message = 'Launching your PM journey...' }) {
       <div className="pml-cloud pml-c3" />
       <div className="pml-cloud pml-c4" />
 
-      {/* Dotted arc trail across full screen */}
+      {/* Dotted arc trail — same cubic bezier as the plane's offset-path */}
       <svg className="pml-trail-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line
-          x1="-2" y1="82" x2="102" y2="45"
-          stroke="rgba(165,180,252,0.18)"
-          strokeWidth="0.4"
+        <path
+          d="M 3,81 C 18,-7 81,-7 97,46"
+          fill="none"
+          stroke="rgba(165,180,252,0.2)"
+          strokeWidth="0.45"
           strokeDasharray="2 1.5"
         />
       </svg>

@@ -6023,23 +6023,24 @@ body {
   margin-left: -9px;
 }
 
-/* Flying plane — starts bottom-left, flies to top-right (PM flag) */
+/* Flying plane — follows a cubic bezier arc across the full screen */
 .pml-plane-wrap {
   position: absolute;
-  left: 3vw;
-  top: 78vh;
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
   z-index: 3;
-  animation: pml-fly 4.5s ease-in-out infinite;
+  /* Path: bottom-left → sweep above screen → arrive at PM flag right-center */
+  offset-path: path('M 50,870 C 370,-80 1550,-80 1870,500');
+  offset-rotate: auto;
+  animation: pml-fly 5s ease-in-out infinite;
 }
 @keyframes pml-fly {
-  0%   { transform: translate(0,     0)     rotate(-11deg); opacity: 0; }
-  8%   { transform: translate(2vw,  -2vh)   rotate(-11deg); opacity: 1; }
-  88%  { transform: translate(84vw, -30vh)  rotate(-11deg); opacity: 1; }
-  95%  { transform: translate(87vw, -31vh)  rotate(-11deg); opacity: 0; }
-  100% { transform: translate(0,     0)     rotate(-11deg); opacity: 0; }
+  0%   { offset-distance: 0%;   opacity: 0; }
+  7%   { offset-distance: 2%;   opacity: 1; }
+  88%  { offset-distance: 96%;  opacity: 1; }
+  95%  { offset-distance: 100%; opacity: 0; }
+  100% { offset-distance: 0%;   opacity: 0; }
 }
 
 /* Engine exhaust */
