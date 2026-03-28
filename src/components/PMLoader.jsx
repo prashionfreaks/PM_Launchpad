@@ -12,11 +12,10 @@ export default function PMLoader({ message = 'Launching your PM journey...' }) {
 
       {/* Dotted arc trail across full screen */}
       <svg className="pml-trail-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path
-          d="M -2 80 Q 30 20 102 45"
-          fill="none"
-          stroke="rgba(165,180,252,0.2)"
-          strokeWidth="0.5"
+        <line
+          x1="-2" y1="82" x2="102" y2="45"
+          stroke="rgba(165,180,252,0.18)"
+          strokeWidth="0.4"
           strokeDasharray="2 1.5"
         />
       </svg>
